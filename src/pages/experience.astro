@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+
+const AREAS = [
+  {
+    title: 'Autonomous Storage Orchestration',
+    meta: 'CEPH · CRUSH · NGSM · HPC',
+    /* <!-- PLACEHOLDER: replace with final copy --> */
+    narrative:
+      'Engineering autonomous storage orchestration for exascale systems within the NGSM framework — working with Ceph’s decentralized architecture and CRUSH-driven data placement, focused on proactive self-healing, autonomous orchestration, and scalability for high-density HPC systems.',
+    built: [
+      'Placeholder — orchestration work item to be detailed',
+      'Placeholder — self-healing work item to be detailed',
+      'Placeholder — scalability work item to be detailed',
+    ],
+  },
+  {
+    title: 'Slingshot Simulation & Monitoring',
+    meta: 'SLINGSHOT · DRAGONFLY · DOCKER · KAFKA · VICTORIAMETRICS',
+    /* <!-- PLACEHOLDER: replace with final copy --> */
+    narrative:
+      'Built a CLI and tooling layer to fully orchestrate and deploy simulated Slingshot network switches — making large-scale stress testing of systems and data pipelines possible without expensive, hard-to-access physical switch hardware or destructive experiments against customer-scale systems.',
+    built: [
+      'Placeholder — simulator orchestration CLI to be detailed',
+      'Placeholder — deployment automation to be detailed',
+      'Placeholder — monitoring pipeline work to be detailed',
+    ],
+  },
+];
+---
+
+<Base
+  title="Experience"
+  description="Bipin Raj at Hewlett Packard Enterprise — autonomous storage orchestration and Slingshot network simulation."
+>
+  <div class="wrap">
+    <header class="head">
+      <SectionLabel text="EXPERIENCE" />
+      <h1 class="serif">Where I work on machines at scale.</h1>
+      <p class="role mono">
+        HEWLETT PACKARD ENTERPRISE · SYSTEMS SOFTWARE ENGINEER · 2023—NOW
+        <!-- PLACEHOLDER: user confirms dates -->
+      </p>
+    </header>
+
+    {
+      AREAS.map((area) => (
+        <section class="area">
+          <h2 class="serif">{area.title}</h2>
+          <p class="narrative">{area.narrative}</p>
+          <p class="label kicker">WHAT I BUILT</p>
+          <ul class="built">
+            {area.built.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+          <p class="tech mono">{area.meta}</p>
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .head {
+    padding-block: var(--space-section) 1rem;
+  }
+
+  h1 {
+    font-size: var(--text-title);
+    margin-bottom: 1rem;
+  }
+
+  .role {
+    color: var(--support);
+  }
+
+  .area {
+    border-top: 1px solid var(--line);
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+  }
+
+  .area h2 {
+    font-size: var(--text-title);
+    margin-bottom: 1rem;
+  }
+
+  .narrative {
+    color: var(--ink-muted);
+    max-width: 62ch;
+    margin-bottom: 1.75rem;
+  }
+
+  .label {
+    margin-bottom: 0.7rem;
+  }
+
+  .built {
+    padding-left: 1.3rem;
+    max-width: 62ch;
+    margin-bottom: 1.75rem;
+  }
+
+  .built li {
+    margin-bottom: 0.4rem;
+    color: var(--ink-muted);
+  }
+
+  .tech {
+    color: var(--accent);
+    font-size: 0.65rem;
+  }
+</style>
