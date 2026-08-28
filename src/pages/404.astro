@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="404" description="Nothing at these coordinates.">
+  <div class="void">
+    <p class="err mono">ERR 404 — OBJECT NOT FOUND</p>
+    <h1 class="serif">Nothing at these coordinates.</h1>
+    <p class="back mono"><a href="/">← HOME</a></p>
+  </div>
+</Base>
+
+<style>
+  /* same star field as the hero (DESIGN.md §9) */
+  .void {
+    min-height: 60vh;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    gap: 1.1rem;
+    padding-inline: var(--pad-x);
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 20%, rgba(116, 165, 218, 0.07), transparent 70%),
+      radial-gradient(1px 1px at 12% 20%, rgba(234, 227, 210, 0.5), transparent 100%),
+      radial-gradient(1px 1px at 30% 8%, rgba(234, 227, 210, 0.35), transparent 100%),
+      radial-gradient(1.5px 1.5px at 48% 26%, rgba(234, 227, 210, 0.3), transparent 100%),
+      radial-gradient(1px 1px at 64% 76%, rgba(234, 227, 210, 0.4), transparent 100%),
+      radial-gradient(1px 1px at 86% 40%, rgba(234, 227, 210, 0.35), transparent 100%),
+      radial-gradient(1px 1px at 94% 12%, rgba(234, 227, 210, 0.45), transparent 100%);
+  }
+
+  .err {
+    color: var(--support);
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+  }
+</style>

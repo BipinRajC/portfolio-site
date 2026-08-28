@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import { SOCIALS, EMAIL } from '../data/site';
+---
+
+<Base title="Contact" description="Find Bipin Raj — email, GitHub, LinkedIn, Instagram.">
+  <div class="wrap">
+    <header class="head">
+      <SectionLabel text="CONTACT" />
+      <h1 class="serif">Say hello.</h1>
+      <p class="sub">Email is fastest. Everything else works too.</p>
+    </header>
+    <ul class="links mono">
+      <li><a href={`mailto:${EMAIL}`}>{EMAIL.toUpperCase()}</a></li>
+      {
+        SOCIALS.filter((s) => s.label !== 'EMAIL').map(({ label, href }) => (
+          <li>
+            <a href={href} target="_blank" rel="noopener">
+              {label} ↗
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .head {
+    padding-block: var(--space-section) 1.75rem;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin-bottom: 0.8rem;
+  }
+
+  .sub {
+    color: var(--ink-muted);
+  }
+
+  .links {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+</style>

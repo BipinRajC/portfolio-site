@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import '../styles/prose.css';
+---
+
+<Base title="About" description="The person behind the work.">
+  <div class="wrap">
+    <header class="head">
+      <SectionLabel text="ABOUT" />
+      <!-- PLACEHOLDER: opening line — user writes final copy -->
+      <h1 class="serif">Curious by default, builder by habit.</h1>
+    </header>
+
+    <div class="prose">
+      <!-- PLACEHOLDER: replace all paragraphs with final copy -->
+      <p>
+        I'm Bipin — a systems software engineer who spends work hours on storage that heals
+        itself and off hours taking other things apart to see why they don't.
+      </p>
+      <p>
+        This page will eventually hold the longer story: the experiments, the rabbit holes, the
+        things outside software — space, nature, travel — that make this a personal corner of the
+        internet rather than a résumé with better typography.
+      </p>
+      <p>Real copy coming soon.</p>
+    </div>
+
+    <!--
+      Future slot: marginalia / sketch fragments (DESIGN.md §1.6, §12) —
+      the only pages allowed scrapbook accents are About and Trajectory.
+    -->
+  </div>
+</Base>
+
+<style>
+  .head {
+    padding-block: var(--space-section) 2.5rem;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    max-width: 22ch;
+  }
+</style>
