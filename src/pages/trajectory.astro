@@ -1,0 +1,121 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import trajectory from '../data/trajectory.yaml';
+
+const categories = trajectory.categories.map((c) => ({
+  ...c,
+  done: c.items.filter((i) => i.done).length,
+}));
+---
+
+<Base
+  title="Trajectory"
+  description="A living record of things Bipin Raj has not done yet — and the ones he has."
+>
+  <div class="wrap">
+    <header class="head">
+      <SectionLabel text="TRAJECTORY" />
+      <h1 class="serif">A public record of where I'm headed.</h1>
+      <p class="sub">
+        Things I have not done yet — want to build, learn, explore, experience. Completed items
+        stay, dated. A living list inspired by the
+        <a href="https://diogotc.com/impossiblelist/" target="_blank" rel="noopener"
+          >Impossible List</a
+        >.
+      </p>
+    </header>
+
+    {
+      categories.map((cat) => (
+        <section class="cat">
+          <div class="cat-head">
+            <h2 class="serif">{cat.title}</h2>
+            <span class="count mono">
+              {cat.done}/{cat.items.length}
+            </span>
+          </div>
+          <ul class="items">
+            {cat.items.map((item) => (
+              <li class:list={{ done: !!item.done }}>
+                <span class="text">{item.text}</span>
+                {item.done && <span class="date mono">({item.done})</span>}
+                {item.evidence && (
+                  <a class="evidence mono" href={item.evidence} target="_blank" rel="noopener">
+                    EVIDENCE ↗
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .head {
+    padding-block: var(--space-section) 1.5rem;
+  }
+
+  h1 {
+    font-size: var(--text-title);
+    margin-bottom: 1rem;
+  }
+
+  .sub {
+    color: var(--ink-muted);
+    max-width: 56ch;
+    font-size: var(--text-small);
+  }
+
+  .cat {
+    border-top: 1px solid var(--line);
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+  }
+
+  .cat-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+  }
+
+  .cat-head h2 {
+    font-size: var(--text-title);
+  }
+
+  .count {
+    color: var(--support);
+  }
+
+  .items {
+    list-style: none;
+    padding: 0;
+    max-width: 62ch;
+  }
+
+  .items li {
+    padding-block: 0.45rem;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .items li.done {
+    color: var(--ink);
+  }
+
+  .date {
+    color: var(--accent);
+    font-size: 0.65rem;
+  }
+
+  .evidence {
+    font-size: 0.65rem;
+  }
+</style>
