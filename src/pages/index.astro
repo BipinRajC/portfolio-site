@@ -1,10 +1,126 @@
 ---
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import DomainStrip from '../components/DomainStrip.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import WorkRow from '../components/WorkRow.astro';
+import IndexRow from '../components/IndexRow.astro';
+import { SOCIALS, EMAIL, EXPERIENCE_META } from '../data/site';
+import trajectory from '../data/trajectory.yaml';
+
+const projects = (await getCollection('projects')).filter((p) => !p.data.draft);
+const notes = (await getCollection('notes')).filter((n) => !n.data.draft);
+
+const selected = projects
+  .filter((p) => p.data.featured !== undefined)
+  .sort((a, b) => a.data.featured! - b.data.featured!)
+  .slice(0, 3);
+
+const latestProject = [...projects].sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+)[0];
+const latestNote = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())[0];
+const noteMonth = latestNote.data.date
+  .toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  .toUpperCase();
+
+const trajectoryItems = trajectory.categories.flatMap((c) => c.items);
+const trajectoryDone = trajectoryItems.filter((i) => i.done).length;
+
+const tagFor = (p: (typeof projects)[number]) =>
+  (p.data.tags[0] ?? p.data.status).toUpperCase();
 ---
 
 <Base title="Home">
   <Hero />
   <DomainStrip />
+
+  <section class="wrap section">
+    <SectionLabel text="SELECTED WORK" />
+    {
+      selected.map((p, i) => (
+        <WorkRow
+          num={String(i + 1).padStart(2, '0')}
+          title={p.data.title}
+          description={p.data.description}
+          tag={tagFor(p)}
+          href={`/projects/${p.id}`}
+        />
+      ))
+    }
+  </section>
+
+  <section class="wrap section">
+    <SectionLabel text="INDEX" />
+    <IndexRow
+      title="Experience"
+      description="Where I work on machines at scale"
+      meta={[{ text: EXPERIENCE_META.replace('NOW', '') }, { text: 'NOW', accent: true }]}
+      href="/experience"
+    />
+    <IndexRow
+      title="Projects"
+      description="Independent builds and research"
+      meta={[
+        { text: `${projects.length} ENTRIES · LATEST ` },
+        { text: latestProject.data.title.toUpperCase(), accent: true },
+      ]}
+      href="/projects"
+    />
+    <IndexRow
+      title="Notes"
+      description="Rabbit holes, experiments, things learned"
+      meta={[
+        { text: `${notes.length} ${notes.length === 1 ? 'NOTE' : 'NOTES'} · LAST ` },
+        { text: noteMonth, accent: true },
+      ]}
+      href="/notes"
+    />
+    <IndexRow
+      title="Trajectory"
+      description="A public record of where I'm headed"
+      meta={[
+        { text: `${trajectoryItems.length} OBJECTIVES · ` },
+        { text: `${trajectoryDone} DONE`, accent: true },
+      ]}
+      href="/trajectory"
+    />
+    <IndexRow title="About" description="The person behind the work" meta={[]} href="/about" />
+  </section>
+
+  <section class="wrap section contact">
+    <h2 class="serif">Say hello.</h2>
+    <ul class="mono links">
+      <li><a href={`mailto:${EMAIL}`}>{EMAIL.toUpperCase()}</a></li>
+      {
+        SOCIALS.filter((s) => s.label !== 'EMAIL').map(({ label, href }) => (
+          <li>
+            <a href={href} target="_blank" rel="noopener">
+              {label} ↗
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 </Base>
+
+<style>
+  .section {
+    padding-top: var(--space-section);
+  }
+
+  .contact h2 {
+    font-size: var(--text-title);
+    margin-bottom: 1rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.4rem;
+    list-style: none;
+    padding: 0;
+  }
+</style>

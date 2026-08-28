@@ -1,0 +1,15 @@
+---
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<p class="kicker label">{text}</p>
+
+<style>
+  .label {
+    margin-bottom: 1.4rem;
+  }
+</style>

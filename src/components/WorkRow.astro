@@ -1,0 +1,71 @@
+---
+interface Props {
+  num: string;
+  title: string;
+  description: string;
+  tag: string;
+  href: string;
+}
+
+const { num, title, description, tag, href } = Astro.props;
+---
+
+<a class="row" href={href}>
+  <span class="num mono">{num}</span>
+  <span class="title serif">{title}</span>
+  <span class="desc">{description}</span>
+  <span class="tag mono">{tag} →</span>
+</a>
+
+<style>
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    border-top: 1px solid var(--line);
+    padding: 1.05rem 0.5rem;
+    color: inherit;
+    border-bottom: none;
+    transition: background-color 150ms ease;
+  }
+
+  .row:hover {
+    background-color: var(--accent-wash);
+  }
+
+  .num {
+    color: var(--support);
+  }
+
+  .title {
+    font-size: 1.15rem;
+    white-space: nowrap;
+  }
+
+  .desc {
+    flex: 1;
+    font-size: var(--text-small);
+    color: var(--ink-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tag {
+    color: var(--accent);
+    font-size: 0.65rem;
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      flex-wrap: wrap;
+      row-gap: 0.15rem;
+    }
+
+    .desc {
+      flex-basis: 100%;
+      order: 4;
+      white-space: normal;
+    }
+  }
+</style>

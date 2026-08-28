@@ -1,0 +1,68 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  /** mono metadata; segments in `accent` render in accent color */
+  meta: { text: string; accent?: boolean }[];
+  href: string;
+}
+
+const { title, description, meta, href } = Astro.props;
+---
+
+<a class="row" href={href}>
+  <span class="title serif">{title}</span>
+  <span class="desc">{description}</span>
+  <span class="meta mono">
+    {meta.map((m) => <span class:list={{ accent: m.accent }}>{m.text}</span>)}
+    {' →'}
+  </span>
+</a>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    align-items: baseline;
+    gap: 1.25rem;
+    border-top: 1px solid var(--line);
+    padding: 1.35rem 0.5rem;
+    color: inherit;
+    border-bottom: none;
+    transition: background-color 150ms ease;
+  }
+
+  .row:hover {
+    background-color: var(--accent-wash);
+  }
+
+  .title {
+    font-size: var(--text-title);
+  }
+
+  .desc {
+    font-size: var(--text-small);
+    color: var(--ink-muted);
+  }
+
+  .meta {
+    color: var(--support);
+    font-size: 0.65rem;
+    text-align: right;
+  }
+
+  .meta .accent {
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr auto;
+    }
+
+    .desc {
+      grid-column: 1 / -1;
+      order: 3;
+    }
+  }
+</style>
