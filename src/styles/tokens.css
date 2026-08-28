@@ -11,7 +11,7 @@
 
   /* alpha ladder — the only permitted derived colors */
   --ink-muted: rgba(234, 227, 210, 0.62);
-  --ink-faint: rgba(234, 227, 210, 0.4);
+  --ink-faint: rgba(234, 227, 210, 0.55);
   --line: rgba(234, 227, 210, 0.11);
   --line-strong: rgba(234, 227, 210, 0.22);
   --accent-underline: rgba(116, 165, 218, 0.4);
