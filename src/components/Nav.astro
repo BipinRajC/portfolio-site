@@ -1,0 +1,75 @@
+---
+const LINKS = [
+  { label: 'EXPERIENCE', href: '/experience' },
+  { label: 'PROJECTS', href: '/projects' },
+  { label: 'NOTES', href: '/notes' },
+  { label: 'ABOUT', href: '/about' },
+  { label: 'TRAJECTORY', href: '/trajectory' },
+  { label: 'CONTACT', href: '/contact' },
+];
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+
+<header>
+  <div class="wrap bar">
+    <a class="name serif" href="/">Bipin Raj</a>
+    <nav aria-label="Main">
+      <ul class="mono">
+        {
+          LINKS.map(({ label, href }) => (
+            <li>
+              <a href={href} aria-current={isActive(href) ? 'page' : undefined}>
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  header {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-block: 1.1rem;
+  }
+
+  .name {
+    color: var(--ink);
+    border-bottom: none;
+    font-size: 1.1rem;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.25rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  nav a {
+    color: var(--ink-muted);
+    border-bottom: none;
+    transition: color 150ms ease;
+  }
+
+  nav a:hover {
+    color: var(--ink);
+  }
+
+  nav a[aria-current='page'] {
+    color: var(--accent);
+  }
+</style>
