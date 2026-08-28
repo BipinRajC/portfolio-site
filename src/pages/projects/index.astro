@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+import WorkRow from '../../components/WorkRow.astro';
+
+const projects = (await getCollection('projects'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const tagFor = (p: (typeof projects)[number]) =>
+  (p.data.tags[0] ?? p.data.status).toUpperCase();
+---
+
+<Base title="Projects" description="Independent builds and research by Bipin Raj.">
+  <div class="wrap">
+    <header class="head">
+      <SectionLabel text="PROJECTS" />
+      <h1 class="serif">Independent builds and research.</h1>
+    </header>
+    <div>
+      {
+        projects.map((p, i) => (
+          <WorkRow
+            num={String(i + 1).padStart(2, '0')}
+            title={p.data.title}
+            description={p.data.description}
+            tag={tagFor(p)}
+            href={`/projects/${p.id}`}
+          />
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .head {
+    padding-block: var(--space-section) 3rem;
+  }
+
+  h1 {
+    font-size: var(--text-title);
+  }
+</style>
