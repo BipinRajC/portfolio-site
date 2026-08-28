@@ -1,0 +1,111 @@
+---
+/**
+ * Builder's Observatory — hero artwork slot.
+ * Currently a blocked placeholder composition (DESIGN.md §8).
+ * The final fine-dither illustration replaces the internals of this
+ * component ONLY — nothing outside this file should change when it lands.
+ */
+---
+
+<figure
+  class="obs"
+  role="img"
+  aria-label="Illustration placeholder: a builder's workspace beneath an observatory window"
+>
+  <div class="scene" aria-hidden="true">
+    <div class="window"></div>
+    <div class="monitor left"></div>
+    <div class="monitor mid"></div>
+    <div class="monitor right"></div>
+    <div class="desk"></div>
+  </div>
+  <figcaption class="mono">BUILDER'S OBSERVATORY — FINAL DITHER ARTWORK</figcaption>
+</figure>
+
+<style>
+  .obs {
+    position: relative;
+    min-height: 380px;
+    height: 100%;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--line);
+    /* dither texture */
+    background-image: radial-gradient(rgba(234, 227, 210, 0.13) 0.8px, transparent 0.8px);
+    background-size: 4px 4px;
+    overflow: hidden;
+  }
+
+  .window {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    border: 1px solid var(--warm-glow);
+    background: radial-gradient(
+      circle,
+      rgba(233, 180, 104, 0.5),
+      rgba(233, 180, 104, 0.12) 55%,
+      transparent 72%
+    );
+  }
+
+  .monitor {
+    position: absolute;
+    background: rgba(234, 227, 210, 0.1);
+    border: 1px solid var(--line-strong);
+  }
+
+  .monitor.left {
+    left: 14%;
+    bottom: 72px;
+    width: 70px;
+    height: 46px;
+    background: rgba(233, 180, 104, 0.16);
+  }
+
+  .monitor.mid {
+    left: 38%;
+    bottom: 78px;
+    width: 88px;
+    height: 58px;
+  }
+
+  .monitor.right {
+    left: 66%;
+    bottom: 72px;
+    width: 56px;
+    height: 42px;
+  }
+
+  .desk {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 64px;
+    height: 3px;
+    background: rgba(234, 227, 210, 0.3);
+  }
+
+  figcaption {
+    position: absolute;
+    bottom: 12px;
+    inset-inline: 0;
+    text-align: center;
+    font-size: 0.56rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-faint);
+  }
+
+  @media (max-width: 900px) {
+    .obs {
+      min-height: 240px;
+    }
+
+    .window {
+      width: 72px;
+      height: 72px;
+    }
+  }
+</style>
