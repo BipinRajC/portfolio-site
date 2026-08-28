@@ -1,0 +1,47 @@
+---
+import { DOMAINS } from '../data/site';
+
+const line = DOMAINS.join(' · ') + ' · ';
+---
+
+<div class="strip" aria-label={`Domains: ${DOMAINS.join(', ')}`}>
+  <div class="track mono">
+    <span>{line}</span>
+    <span aria-hidden="true">{line}</span>
+  </div>
+</div>
+
+<style>
+  .strip {
+    border-block: 1px solid var(--line);
+    overflow: hidden;
+    white-space: nowrap;
+    padding-block: 0.65rem;
+  }
+
+  .track {
+    display: inline-block;
+    color: var(--ink-muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+  }
+
+  .track span {
+    padding-right: 0.4em;
+  }
+
+  /* motion inventory item 1: strip drift (DESIGN.md §6) */
+  @media (prefers-reduced-motion: no-preference) {
+    .track {
+      animation: drift 40s linear infinite;
+    }
+
+    @keyframes drift {
+      to {
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  /* reduced motion: static single line, second copy stays hidden past overflow */
+</style>
