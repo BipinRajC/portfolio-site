@@ -7,8 +7,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // PLACEHOLDER: update to the real production URL after Vercel import
-  site: 'https://portfolio-site.vercel.app',
+  site: 'https://portfolio-site-bipinrajcs-projects.vercel.app',
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [yaml()],

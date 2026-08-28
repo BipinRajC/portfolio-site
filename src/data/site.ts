@@ -1,8 +1,7 @@
 export const SOCIALS = [
   { label: 'GITHUB', href: 'https://github.com/BipinRajC' },
-  // PLACEHOLDER: user must supply real profile URLs before launch
-  { label: 'LINKEDIN', href: '#' },
-  { label: 'INSTAGRAM', href: '#' },
+  { label: 'LINKEDIN', href: 'https://www.linkedin.com/in/bipin-raj-c-b61670283/' },
+  { label: 'INSTAGRAM', href: 'https://www.instagram.com/entropist.log' },
   { label: 'EMAIL', href: 'mailto:bipinraj.4604@gmail.com' },
 ];
 
