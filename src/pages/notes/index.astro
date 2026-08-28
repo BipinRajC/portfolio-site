@@ -1,0 +1,84 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+
+const notes = (await getCollection('notes'))
+  .filter((n) => !n.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+<Base title="Notes" description="Notes by Bipin Raj — rabbit holes, experiments, things learned.">
+  <div class="wrap">
+    <header class="head">
+      <SectionLabel text="NOTES" />
+      <h1 class="serif">Rabbit holes, experiments, things learned.</h1>
+    </header>
+    <div class="list">
+      {
+        notes.map((n) => (
+          <a class="row" href={`/notes/${n.id}`}>
+            <span class="date mono">{fmt(n.data.date)}</span>
+            <span class="title serif">{n.data.title}</span>
+            {n.data.tags[0] && <span class="tag mono">{n.data.tags[0]}</span>}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .head {
+    padding-block: var(--space-section) 3rem;
+  }
+
+  h1 {
+    font-size: var(--text-title);
+    max-width: 30ch;
+  }
+
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    border-top: 1px solid var(--line);
+    padding: 1.05rem 0.5rem;
+    color: inherit;
+    border-bottom: none;
+    transition: background-color 150ms ease;
+  }
+
+  .row:hover {
+    background-color: var(--accent-wash);
+  }
+
+  .date {
+    color: var(--support);
+    font-size: 0.65rem;
+  }
+
+  .title {
+    flex: 1;
+    font-size: 1.15rem;
+  }
+
+  .tag {
+    color: var(--accent);
+    font-size: 0.65rem;
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      flex-wrap: wrap;
+      row-gap: 0.15rem;
+    }
+
+    .title {
+      flex-basis: 100%;
+      order: 3;
+    }
+  }
+</style>

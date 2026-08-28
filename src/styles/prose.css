@@ -1,0 +1,81 @@
+/* Long-form MDX content — notes and project case studies */
+.prose {
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.prose h2,
+.prose h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  margin-top: 2.2em;
+  margin-bottom: 0.6em;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+}
+
+.prose h3 {
+  font-size: 1.2rem;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin-bottom: 1.1em;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+
+.prose li {
+  margin-bottom: 0.35em;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+}
+
+.prose pre {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin-bottom: 1.1em;
+  font-size: 0.85rem;
+}
+
+.prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--ink-muted);
+  margin-bottom: 1.1em;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 2.2em 0;
+}
+
+.prose strong {
+  font-weight: 500;
+  color: var(--ink);
+}
