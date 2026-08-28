@@ -1,0 +1,15 @@
+---
+title: How this site publishes notes
+description: The git-based pipeline behind this Notes section
+date: 2026-08-29
+tags: [meta]
+---
+
+Every note on this site is an MDX file in the repository. The workflow is deliberately boring:
+
+1. Create a new `.mdx` file in `src/content/notes/` with a few lines of frontmatter.
+2. Write.
+3. `git commit && git push`.
+4. Vercel rebuilds, and the note appears — in the list, in the homepage index metadata, in the sitemap.
+
+No CMS, no database, no admin panel. The repository is the content, which means notes get versioned, diffed, and reviewed like code — and the whole site stays static and fast.

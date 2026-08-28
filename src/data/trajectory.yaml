@@ -1,0 +1,36 @@
+# Trajectory — living goals list. Edit freely; the page renders from this file.
+# Item shape: { text, done: 'YYYY-MM-DD' (optional), evidence: url (optional) }
+# PLACEHOLDER items throughout — user replaces with real objectives.
+
+categories:
+  - id: build
+    title: Build
+    items:
+      - text: Publish a research paper (placeholder)
+        done: '2026-06-01'
+      - text: Ship an open-source tool people actually use (placeholder)
+      - text: Build a homelab cluster (placeholder)
+
+  - id: learn
+    title: Learn
+    items:
+      - text: Get comfortable writing an OS kernel module (placeholder)
+      - text: Learn a systems language deeply (placeholder)
+
+  - id: explore
+    title: Explore
+    items:
+      - text: See an aurora (placeholder)
+      - text: Visit a supercomputing facility (placeholder)
+
+  - id: experience
+    title: Experience
+    items:
+      - text: Attend a major systems conference (placeholder)
+      - text: Give a public technical talk (placeholder)
+
+  - id: someday
+    title: Someday
+    items:
+      - text: Watch a rocket launch in person (placeholder)
+      - text: Write something longer than a blog post (placeholder)
