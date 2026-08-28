@@ -1,0 +1,37 @@
+/* Design tokens — source of truth: /DESIGN.md §3–§5.
+   Never introduce colors outside this file. */
+:root {
+  /* environment */
+  --bg-deep: #0a0f18;
+  --bg-panel: #0d1420;
+  --ink: #eae3d2;
+  --accent: #74a5da;
+  --support: #8ca3bf;
+  --warm: #e9b468; /* Observatory artwork + ::selection ONLY */
+
+  /* alpha ladder — the only permitted derived colors */
+  --ink-muted: rgba(234, 227, 210, 0.62);
+  --ink-faint: rgba(234, 227, 210, 0.4);
+  --line: rgba(234, 227, 210, 0.11);
+  --line-strong: rgba(234, 227, 210, 0.22);
+  --accent-underline: rgba(116, 165, 218, 0.4);
+  --accent-wash: rgba(116, 165, 218, 0.05);
+  --warm-glow: rgba(233, 180, 104, 0.35);
+
+  /* type */
+  --font-serif: 'Fraunces Variable', Georgia, serif;
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --text-display: clamp(2.2rem, 5vw, 3.5rem);
+  --text-title: clamp(1.35rem, 2.5vw, 1.6rem);
+  --text-body: 1rem;
+  --text-small: 0.8rem;
+  --text-meta: 0.72rem;
+  --track-meta: 0.14em;
+  --track-kicker: 0.22em;
+
+  /* layout */
+  --max-w: 1140px;
+  --space-section: clamp(3.5rem, 8vw, 6rem);
+  --pad-x: clamp(1.25rem, 4vw, 2.25rem);
+}
