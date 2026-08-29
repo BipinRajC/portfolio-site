@@ -58,7 +58,7 @@ Dark-only. No light mode.
 
 Rules:
 - Never introduce a new gray/hex. New shades must be alpha steps of `--ink`, `--accent`, or `--warm` and must be added to this table first.
-- `--warm` in UI is allowed in exactly two places: the Observatory artwork and `::selection`. Nowhere else, ever.
+- `--warm` in UI is allowed in exactly three places: the Observatory artwork, `::selection`, and the contact sign-off name ("the human at the end of the cold instrument" — amended 2026-08-29). Nowhere else, ever.
 - Contrast floors: body-size text ≥ 4.5:1 on `--bg-deep`; large serif display ≥ 3:1.
 
 ## 4. Typography
@@ -86,7 +86,7 @@ Rules:
 - Serif is 400/500 weight only — elegance from size and space, not boldness.
 - Mono labels are uppercase + letterspaced. Sans is never letterspaced.
 - Long-form prose (`.prose`): Inter 1.0625rem / 1.7, max-width 68ch; Fraunces headings.
-- Later optional layer (deferred): self-hosted **Departure Mono** for ≤11px micro-labels only (strip, captions, footer) — pixel-flavored echo of the dither art.
+- **Departure Mono** (`--font-pixel`, self-hosted, MIT) for ≤11px micro-labels only: the domain strip, figure captions, the footer. Pixel-flavored echo of the dither art. Never at body sizes (adopted 2026-08-29).
 
 ## 5. Spacing, Borders, Grid
 
@@ -101,10 +101,12 @@ Rules:
 
 The complete motion inventory. Nothing else may animate:
 
-1. **Domain strip drift** — marquee, ~40s linear loop.
+1. **Domain strip drift** — marquee, ~55s linear loop, pauses on hover.
 2. **Hover steps** — border/background alpha increases (`--line` → `--line-strong`, transparent → `--accent-wash`). 150ms ease.
 3. **Page-enter fade** — main content, 300ms, opacity + 4px rise. Once per navigation.
-4. *(Future, after final artwork)* Observatory ambient loops — cursor blink, coffee steam, star twinkle. Decided per-element once art exists.
+4. **Sky breathing** — the two far-star sub-layers oscillate opacity on 13s/21s alternating cycles; the nebula drifts ~1.5% over 240s.
+5. **The meteor** — one dim 1px streak crossing the upper sky for ~1.5s every ~84s. The site's single rare event; a visitor should catch it peripherally at most once. Hidden entirely under reduced-motion.
+6. *(Future, after final artwork)* Observatory ambient loops — cursor blink, coffee steam. Decided per-element once art exists.
 
 All motion sits inside `@media (prefers-reduced-motion: no-preference)`. Reduced-motion users get a fully static site. No scroll-driven animation, no parallax, no scroll-jacking — ever.
 
@@ -116,6 +118,8 @@ All motion sits inside `@media (prefers-reduced-motion: no-preference)`. Reduced
 - **Links**: `--accent` with `--accent-underline` bottom border; hover → solid. External links get `↗`.
 - **NOW readout**: mono, 2px `--accent` left border, accent dots, sourced from `src/data/now.json`.
 - Social links are always visible and labeled (GITHUB / LINKEDIN / INSTAGRAM / EMAIL) — in the hero and in contact. Never icon-only, never hidden in menus.
+- **Identity is woven editorially, never shouted**: the masthead wordmark ("Bipin Raj C", Fraunces, heaviest element in the header), the hero byline (`— Bipin Raj C · role` beneath the statement — authorship, not introduction), and the warm serif sign-off at contact. No "Hi, I'm" heroes.
+- **Strip grammar**: `DOMAIN [TOOL · TOOL]` — problem domains bright, implied tools dimmer in brackets. Never a flat tech list.
 
 ## 8. The Builder's Observatory (hero artwork spec)
 
@@ -131,13 +135,19 @@ All motion sits inside `@media (prefers-reduced-motion: no-preference)`. Reduced
 - Occupies the right ~44% of the desktop hero; below the statement on mobile (never above the name).
 - The artwork is a **replaceable asset**: everything routes through `src/components/Observatory.astro`; swapping the art touches only that component. Layers are separated for animation only if proven worth it after the art exists.
 
-**Process:** blocked placeholder (current) → AI-generated dither illustration, art-directed iteratively → selective ambient animation. Artistic quality first, implementation elegance second.
+**Process:** composition study (current — `FIG. 01`, an SVG underdrawing establishing the final composition: figure at three-monitor desk, round warm window upper-right, wall notes/map, books, machine under desk, plant) → AI-generated dither illustration matching that composition, art-directed iteratively → selective ambient animation. Artistic quality first, implementation elegance second.
+
+**Integration rule:** the artwork has no border and no box — its dither dissolves into the page via an edge mask. Figure captions are numbered (`FIG. NN`) in `--font-pixel`, reading as research-notebook figures.
 
 ## 9. Background Atmosphere
 
-- Faint star field (5–8 single-pixel radial-gradient stars at 0.3–0.5 ivory alpha) + one soft nebula tint (`--accent` at ~0.07 alpha, large radial ellipse) — **behind the hero section only** (404 may reuse it).
-- CSS-only. No canvas, no particles, no JS. Static in v1.
-- The atmosphere must never compete with content: if you notice it while reading, it's too loud.
+Site-wide, in `Atmosphere.astro`, CSS-only (no canvas, no JS, animates only opacity/transform):
+
+- **Two star depth layers**: a `fixed` far layer (tiled 1px radial-gradient stars, 0.3–0.5 ivory alpha, breathing per §6) and an `absolute` near layer (slightly larger, dimmer stars) that scrolls with the content — scrolling itself is the parallax.
+- **Nebula tint**: `--accent` at ~0.07 alpha, large ellipse weighted upper-right, multi-minute drift.
+- **The meteor**: see §6 item 5.
+- Deliberately rejected: aurora gradients (third hue = palette noise), astronomical grid overlays (the hairline UI already is the instrument), constant particles, scroll-driven changes.
+- The atmosphere must never compete with content: if you notice it while reading, it's too loud. The visitor should *discover* the movement, not be shown it.
 
 ## 10. Accessibility
 
@@ -160,7 +170,7 @@ All motion sits inside `@media (prefers-reduced-motion: no-preference)`. Reduced
 
 - No light mode. No theme toggle.
 - No new grays or hexes outside §3. No `#FFF`, no `#000`.
-- No warm color in UI outside the Observatory + `::selection`.
+- No warm color in UI outside the Observatory, `::selection`, and the contact sign-off (§3).
 - No glassmorphism, backdrop blur, neon, cyberpunk, Matrix rain, green terminals.
 - No 3D, WebGL, particles, scroll-jacking, parallax, cursor followers.
 - No hamburger menus, command palettes, or hidden navigation.
