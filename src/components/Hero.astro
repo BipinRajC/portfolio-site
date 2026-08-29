@@ -10,9 +10,9 @@ import now from '../data/now.json';
       <p class="kicker">SYSTEMS · STORAGE · INFRASTRUCTURE</p>
       <!-- PLACEHOLDER: hero statement — user rewrites final copy -->
       <h1>Building autonomous storage for machines the size of warehouses.</h1>
-      <p class="lede">
-        Systems Software Engineer at Hewlett Packard Enterprise — distributed storage,
-        orchestration, and exascale HPC.
+      <p class="byline">
+        <span class="serif who">— Bipin Raj C</span>
+        <span class="role">· Systems Software Engineer, Hewlett Packard Enterprise</span>
       </p>
       <div class="now mono">
         <p><span class="dot" aria-hidden="true">●</span> NOW — {now.now}</p>
@@ -58,10 +58,23 @@ import now from '../data/now.json';
     max-width: 16ch;
   }
 
-  .lede {
+  /* editorial byline — authorship of the statement */
+  .byline {
+    margin-bottom: 1.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .byline .who {
+    font-size: 1.25rem;
+    font-style: italic;
+  }
+
+  .byline .role {
+    font-size: var(--text-small);
     color: var(--ink-muted);
-    max-width: 44ch;
-    margin-bottom: 1.75rem;
   }
 
   .now {

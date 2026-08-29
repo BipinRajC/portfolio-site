@@ -91,6 +91,7 @@ const tagFor = (p: (typeof projects)[number]) =>
 
   <section class="wrap section contact">
     <h2 class="serif">Say hello.</h2>
+    <p class="signoff serif" aria-hidden="true">Bipin Raj C</p>
     <ul class="mono links">
       <li><a href={`mailto:${EMAIL}`}>{EMAIL.toUpperCase()}</a></li>
       {
@@ -113,7 +114,15 @@ const tagFor = (p: (typeof projects)[number]) =>
 
   .contact h2 {
     font-size: var(--text-title);
-    margin-bottom: 1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  /* the one warm UI moment — the human at the end (DESIGN.md §3 amendment) */
+  .signoff {
+    font-style: italic;
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    color: var(--warm);
+    margin-bottom: 1.4rem;
   }
 
   .links {
