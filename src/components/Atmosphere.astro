@@ -1,0 +1,160 @@
+---
+/**
+ * Site-wide cosmic atmosphere — DESIGN.md §9.
+ * CSS-only, animates opacity/transform exclusively.
+ * Depth trick: `.far` + `.nebula` are fixed (don't scroll), `.near` is
+ * absolute (scrolls with content) — scrolling itself creates parallax,
+ * zero JavaScript.
+ * The meteor is the site's single rare event: one dim streak ~every 84s.
+ */
+---
+
+<div class="sky" aria-hidden="true">
+  <div class="far"></div>
+  <div class="near"></div>
+  <div class="nebula"></div>
+  <div class="meteor"></div>
+</div>
+
+<style>
+  .sky {
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .far,
+  .nebula,
+  .meteor {
+    position: fixed;
+    inset: 0;
+  }
+
+  /* distant layer — fixed, breathes slowly via two desynced sub-layers */
+  .far::before,
+  .far::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+    background-size: 620px 620px;
+  }
+
+  .far::before {
+    background-image:
+      radial-gradient(1px 1px at 44px 61px, rgba(234, 227, 210, 0.5), transparent),
+      radial-gradient(1px 1px at 189px 322px, rgba(234, 227, 210, 0.32), transparent),
+      radial-gradient(1px 1px at 402px 118px, rgba(234, 227, 210, 0.42), transparent),
+      radial-gradient(1px 1px at 543px 449px, rgba(234, 227, 210, 0.3), transparent);
+  }
+
+  .far::after {
+    background-image:
+      radial-gradient(1px 1px at 118px 512px, rgba(234, 227, 210, 0.38), transparent),
+      radial-gradient(1.5px 1.5px at 310px 210px, rgba(234, 227, 210, 0.28), transparent),
+      radial-gradient(1px 1px at 500px 47px, rgba(234, 227, 210, 0.45), transparent),
+      radial-gradient(1px 1px at 251px 590px, rgba(234, 227, 210, 0.3), transparent);
+  }
+
+  /* close layer — scrolls with the page (parallax against .far) */
+  .near {
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+    background-size: 780px 780px;
+    background-image:
+      radial-gradient(1.5px 1.5px at 92px 180px, rgba(234, 227, 210, 0.24), transparent),
+      radial-gradient(1.5px 1.5px at 420px 520px, rgba(234, 227, 210, 0.2), transparent),
+      radial-gradient(2px 2px at 640px 90px, rgba(234, 227, 210, 0.16), transparent),
+      radial-gradient(1.5px 1.5px at 260px 700px, rgba(234, 227, 210, 0.22), transparent);
+  }
+
+  .nebula {
+    background: radial-gradient(
+      ellipse 55% 45% at 76% 10%,
+      rgba(116, 165, 218, 0.07),
+      transparent 70%
+    );
+  }
+
+  /* the rare event — a dim streak crossing the upper sky */
+  .meteor {
+    inset: auto;
+    top: 14%;
+    right: 8%;
+    width: 110px;
+    height: 1px;
+    opacity: 0;
+    rotate: 148deg;
+    background: linear-gradient(90deg, transparent, rgba(234, 227, 210, 0.6), transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .far::before {
+      animation: breathe-a 13s ease-in-out infinite alternate;
+    }
+
+    .far::after {
+      animation: breathe-b 21s ease-in-out infinite alternate;
+    }
+
+    .nebula {
+      animation: nebula-drift 240s ease-in-out infinite alternate;
+    }
+
+    .meteor {
+      animation: meteor 84s linear infinite;
+      animation-delay: 18s;
+    }
+
+    @keyframes breathe-a {
+      from {
+        opacity: 0.55;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes breathe-b {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0.5;
+      }
+    }
+
+    @keyframes nebula-drift {
+      to {
+        transform: translate3d(-1.5%, 1%, 0) scale(1.05);
+      }
+    }
+
+    @keyframes meteor {
+      0% {
+        opacity: 0;
+        transform: translate3d(0, 0, 0);
+      }
+      0.4% {
+        opacity: 0.65;
+      }
+      1.8% {
+        opacity: 0;
+        transform: translate3d(-38vw, 24vh, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(-38vw, 24vh, 0);
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .meteor {
+      display: none;
+    }
+  }
+</style>

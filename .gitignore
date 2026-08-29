@@ -26,3 +26,6 @@ pnpm-debug.log*
 # tooling
 .superpowers/
 .vercel/
+
+#context files
+prompt.md

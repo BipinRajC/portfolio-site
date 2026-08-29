@@ -17,6 +17,7 @@ html {
 }
 
 body {
+  position: relative;
   background: var(--bg-deep);
   color: var(--ink);
   font-family: var(--font-sans);
