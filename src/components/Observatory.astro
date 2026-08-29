@@ -1,97 +1,163 @@
 ---
 /**
  * Builder's Observatory — hero artwork slot.
- * Currently a blocked placeholder composition (DESIGN.md §8).
- * The final fine-dither illustration replaces the internals of this
- * component ONLY — nothing outside this file should change when it lands.
+ * Current state: FIG. 01, an SVG composition study (DESIGN.md §8) —
+ * the architect's underdrawing of the final fine-dither illustration.
+ * It establishes the final composition (figure at multi-monitor desk,
+ * observatory window upper-right, workshop clutter) and demonstrates
+ * how the dither texture dissolves into the page (edge mask, no border).
+ * The final artwork replaces the internals of this component ONLY.
  */
 ---
 
-<figure
-  class="obs"
-  role="img"
-  aria-label="Illustration placeholder: a builder's workspace beneath an observatory window"
->
-  <div class="scene" aria-hidden="true">
-    <div class="window"></div>
-    <div class="monitor left"></div>
-    <div class="monitor mid"></div>
-    <div class="monitor right"></div>
-    <div class="desk"></div>
+<figure class="obs">
+  <div
+    class="canvas"
+    role="img"
+    aria-label="Composition study: a builder at a multi-monitor desk beneath an observatory window opening to stars"
+  >
+    <svg viewBox="0 0 520 440" aria-hidden="true">
+      <defs>
+        <pattern id="dith" width="4" height="4" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="0.7" fill="rgba(234,227,210,0.16)"></circle>
+        </pattern>
+        <pattern id="dith-dense" width="3" height="3" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="0.8" fill="rgba(234,227,210,0.24)"></circle>
+        </pattern>
+        <radialGradient id="warmglow">
+          <stop offset="0%" stop-color="rgba(233,180,104,0.55)"></stop>
+          <stop offset="55%" stop-color="rgba(233,180,104,0.15)"></stop>
+          <stop offset="100%" stop-color="rgba(233,180,104,0)"></stop>
+        </radialGradient>
+      </defs>
+
+      <!-- observatory window, upper right -->
+      <circle cx="398" cy="96" r="66" fill="url(#warmglow)"></circle>
+      <circle cx="398" cy="96" r="62" fill="none" stroke="rgba(233,180,104,0.4)"></circle>
+      <circle cx="398" cy="96" r="55" fill="none" stroke="rgba(234,227,210,0.14)"></circle>
+      <line x1="398" y1="41" x2="398" y2="151" stroke="rgba(234,227,210,0.14)"></line>
+      <line x1="343" y1="96" x2="453" y2="96" stroke="rgba(234,227,210,0.14)"></line>
+      <circle cx="378" cy="76" r="1.4" fill="rgba(234,227,210,0.7)"></circle>
+      <circle cx="424" cy="112" r="1" fill="rgba(234,227,210,0.55)"></circle>
+      <circle cx="410" cy="66" r="1" fill="rgba(234,227,210,0.5)"></circle>
+
+      <!-- pinned notes + map, left wall -->
+      <g stroke="rgba(234,227,210,0.3)" fill="none">
+        <rect x="52" y="62" width="46" height="34" fill="url(#dith)"></rect>
+        <path d="M58 72h34M58 80h26M58 88h30"></path>
+        <rect x="112" y="76" width="40" height="30"></rect>
+        <path d="M118 84h28M118 92h20"></path>
+        <line x1="112" y1="76" x2="152" y2="106"></line>
+        <rect x="60" y="112" width="70" height="52" fill="url(#dith)"></rect>
+        <path d="M68 130c10-8 22 6 34-2s16 8 22 2M68 148c14 6 30-10 48 0"></path>
+        <circle cx="97" cy="138" r="2" fill="rgba(234,227,210,0.4)"></circle>
+      </g>
+
+      <!-- desk -->
+      <line x1="36" y1="302" x2="486" y2="302" stroke="rgba(234,227,210,0.45)" stroke-width="2"></line>
+      <line x1="60" y1="302" x2="56" y2="392" stroke="rgba(234,227,210,0.25)"></line>
+      <line x1="452" y1="302" x2="458" y2="392" stroke="rgba(234,227,210,0.25)"></line>
+
+      <!-- monitors -->
+      <g>
+        <rect x="76" y="228" width="82" height="56" fill="rgba(233,180,104,0.13)" stroke="rgba(234,227,210,0.4)"></rect>
+        <path d="M84 240h40M84 250h56M84 260h32M84 270h48" stroke="rgba(233,180,104,0.45)"></path>
+        <line x1="117" y1="284" x2="117" y2="296" stroke="rgba(234,227,210,0.3)"></line>
+        <line x1="101" y1="296" x2="133" y2="296" stroke="rgba(234,227,210,0.3)"></line>
+
+        <rect x="186" y="206" width="112" height="76" fill="url(#dith)" stroke="rgba(234,227,210,0.45)"></rect>
+        <polyline points="196,262 216,246 232,254 250,228 268,238 288,220" fill="none" stroke="rgba(116,165,218,0.6)"></polyline>
+        <path d="M196 216h36" stroke="rgba(234,227,210,0.3)"></path>
+        <line x1="242" y1="282" x2="242" y2="296" stroke="rgba(234,227,210,0.3)"></line>
+        <line x1="222" y1="296" x2="262" y2="296" stroke="rgba(234,227,210,0.3)"></line>
+
+        <rect x="318" y="240" width="66" height="44" fill="url(#dith)" stroke="rgba(234,227,210,0.4)"></rect>
+        <path d="M326 250h28M326 258h40M326 266h22" stroke="rgba(234,227,210,0.35)"></path>
+        <line x1="351" y1="284" x2="351" y2="296" stroke="rgba(234,227,210,0.3)"></line>
+      </g>
+
+      <!-- the builder, back view -->
+      <g stroke="rgba(234,227,210,0.5)" fill="rgba(10,20,32,0.9)">
+        <circle cx="247" cy="242" r="17"></circle>
+        <path d="M247 222a20 20 0 0 1 20 18" fill="none" stroke="rgba(234,227,210,0.55)" stroke-width="2"></path>
+        <path d="M212 302c2-28 14-44 35-44s33 16 35 44" fill="url(#dith-dense)"></path>
+      </g>
+      <!-- chair below desk -->
+      <g stroke="rgba(234,227,210,0.28)" fill="none">
+        <path d="M247 322v34"></path>
+        <path d="M227 372l20-16 20 16"></path>
+        <circle cx="227" cy="376" r="3"></circle>
+        <circle cx="267" cy="376" r="3"></circle>
+      </g>
+
+      <!-- desk clutter -->
+      <g stroke="rgba(234,227,210,0.35)" fill="none">
+        <!-- books far left -->
+        <rect x="42" y="288" width="34" height="6" fill="url(#dith)"></rect>
+        <rect x="46" y="280" width="28" height="8"></rect>
+        <rect x="44" y="272" width="30" height="8" fill="url(#dith)"></rect>
+        <!-- coffee -->
+        <rect x="306" y="286" width="14" height="16" fill="url(#dith)"></rect>
+        <path d="M320 290a5 5 0 0 1 0 9"></path>
+        <path d="M310 280c-2-4 2-6 0-10M316 280c-2-4 2-6 0-10" stroke="rgba(234,227,210,0.22)"></path>
+        <!-- circuit board -->
+        <rect x="404" y="286" width="42" height="16"></rect>
+        <circle cx="412" cy="294" r="1.4" fill="rgba(234,227,210,0.45)"></circle>
+        <circle cx="422" cy="294" r="1.4" fill="rgba(234,227,210,0.45)"></circle>
+        <circle cx="432" cy="294" r="1.4" fill="rgba(233,180,104,0.7)"></circle>
+        <!-- notebook + pen -->
+        <rect x="150" y="290" width="26" height="12" fill="url(#dith)"></rect>
+        <line x1="182" y1="302" x2="196" y2="292"></line>
+        <!-- cables off the desk edge -->
+        <path d="M390 302c6 18-8 26 2 44M420 302c-4 16 10 22 4 40" stroke="rgba(234,227,210,0.22)"></path>
+      </g>
+
+      <!-- machine under desk -->
+      <g stroke="rgba(234,227,210,0.3)" fill="url(#dith)">
+        <rect x="82" y="316" width="44" height="66"></rect>
+        <circle cx="104" cy="330" r="1.6" fill="rgba(233,180,104,0.8)" stroke="none"></circle>
+        <path d="M92 344h24M92 352h24" fill="none" stroke="rgba(234,227,210,0.2)"></path>
+      </g>
+
+      <!-- plant, far right floor -->
+      <g stroke="rgba(234,227,210,0.3)" fill="none">
+        <path d="M468 392v-6l-4-14h22l-4 14v6z" fill="url(#dith)"></path>
+        <path d="M475 372c-6-10-16-12-20-24M477 372c0-14 6-20 4-32M479 372c8-10 16-10 18-22"></path>
+      </g>
+
+      <!-- floor shading -->
+      <rect x="0" y="392" width="520" height="48" fill="url(#dith)" opacity="0.5"></rect>
+    </svg>
   </div>
-  <figcaption class="mono">BUILDER'S OBSERVATORY — FINAL DITHER ARTWORK</figcaption>
+  <figcaption class="mono">FIG. 01 — THE BUILDER'S OBSERVATORY · COMPOSITION STUDY</figcaption>
 </figure>
 
 <style>
   .obs {
-    position: relative;
-    min-height: 380px;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* dither dissolves into the page — no box, no border (DESIGN.md §8) */
+  .canvas {
+    position: relative;
     background-color: var(--bg-panel);
-    border: 1px solid var(--line);
-    /* dither texture */
-    background-image: radial-gradient(rgba(234, 227, 210, 0.13) 0.8px, transparent 0.8px);
+    background-image: radial-gradient(rgba(234, 227, 210, 0.09) 0.8px, transparent 0.8px);
     background-size: 4px 4px;
-    overflow: hidden;
+    mask-image: radial-gradient(ellipse 72% 72% at 50% 46%, #000 48%, transparent 94%);
+    -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 46%, #000 48%, transparent 94%);
   }
 
-  .window {
-    position: absolute;
-    top: 24px;
-    right: 28px;
-    width: 92px;
-    height: 92px;
-    border-radius: 50%;
-    border: 1px solid var(--warm-glow);
-    background: radial-gradient(
-      circle,
-      rgba(233, 180, 104, 0.5),
-      rgba(233, 180, 104, 0.12) 55%,
-      transparent 72%
-    );
-  }
-
-  .monitor {
-    position: absolute;
-    background: rgba(234, 227, 210, 0.1);
-    border: 1px solid var(--line-strong);
-  }
-
-  .monitor.left {
-    left: 14%;
-    bottom: 72px;
-    width: 70px;
-    height: 46px;
-    background: rgba(233, 180, 104, 0.16);
-  }
-
-  .monitor.mid {
-    left: 38%;
-    bottom: 78px;
-    width: 88px;
-    height: 58px;
-  }
-
-  .monitor.right {
-    left: 66%;
-    bottom: 72px;
-    width: 56px;
-    height: 42px;
-  }
-
-  .desk {
-    position: absolute;
-    left: 8%;
-    right: 8%;
-    bottom: 64px;
-    height: 3px;
-    background: rgba(234, 227, 210, 0.3);
+  .canvas svg {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
   figcaption {
-    position: absolute;
-    bottom: 12px;
-    inset-inline: 0;
+    margin-top: 0.4rem;
     text-align: center;
     font-size: 0.56rem;
     letter-spacing: 0.18em;
@@ -99,13 +165,13 @@
   }
 
   @media (max-width: 900px) {
-    .obs {
-      min-height: 240px;
+    .canvas {
+      max-height: 320px;
     }
 
-    .window {
-      width: 72px;
-      height: 72px;
+    .canvas svg {
+      max-height: 320px;
+      margin-inline: auto;
     }
   }
 </style>
