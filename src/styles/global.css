@@ -4,6 +4,15 @@
 @import '@fontsource/ibm-plex-mono/500.css';
 @import './tokens.css';
 
+/* Departure Mono (MIT, self-hosted) — micro-labels ≤11px only: strip,
+   figure captions, footer. The pixel texture echoes the dither art. */
+@font-face {
+  font-family: 'Departure Mono';
+  src: url('/fonts/DepartureMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {

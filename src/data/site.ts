@@ -7,18 +7,14 @@ export const SOCIALS = [
 
 export const EMAIL = 'bipinraj.4604@gmail.com';
 
-/* Hybrid problem-domain + technology strip — user refines the mix later */
+/* Strip grammar: problem domain [the tools it implies] — user refines later */
 export const DOMAINS = [
-  'EXASCALE HPC',
-  'CEPH',
-  'DISTRIBUTED SYSTEMS',
-  'THERMAL-AWARE SCHEDULING',
-  'NETWORKING',
-  'KAFKA',
-  'REINFORCEMENT LEARNING',
-  'LINUX',
-  'DOCKER',
-  'SECURITY',
+  { domain: 'STORAGE ORCHESTRATION', tools: ['CEPH', 'CRUSH', 'NGSM'] },
+  { domain: 'NETWORK SIMULATION', tools: ['SLINGSHOT', 'DRAGONFLY'] },
+  { domain: 'THERMAL SCHEDULING', tools: ['RL', 'PPO'] },
+  { domain: 'DISTRIBUTED SYSTEMS', tools: ['KAFKA', 'VICTORIAMETRICS'] },
+  { domain: 'EXASCALE HPC', tools: ['LINUX', 'DOCKER'] },
+  { domain: 'SECURITY', tools: ['EDR', 'CONFIDENTIAL COMPUTING'] },
 ];
 
 export const EXPERIENCE_META = 'HPE · 2023—NOW';

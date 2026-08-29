@@ -22,6 +22,7 @@
   --font-serif: 'Fraunces Variable', Georgia, serif;
   --font-sans: 'Inter Variable', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-pixel: 'Departure Mono', 'IBM Plex Mono', ui-monospace, monospace;
   --text-display: clamp(2.2rem, 5vw, 3.5rem);
   --text-title: clamp(1.35rem, 2.5vw, 1.6rem);
   --text-body: 1rem;

@@ -1,13 +1,24 @@
 ---
 import { DOMAINS } from '../data/site';
 
-const line = DOMAINS.join(' · ') + ' · ';
+const label = DOMAINS.map((d) => `${d.domain} (${d.tools.join(', ')})`).join('; ');
 ---
 
-<div class="strip" aria-label={`Domains: ${DOMAINS.join(', ')}`}>
-  <div class="track mono">
-    <span>{line}</span>
-    <span aria-hidden="true">{line}</span>
+<div class="strip" aria-label={`Working domains: ${label}`}>
+  <div class="track">
+    {
+      [0, 1].map((copy) => (
+        <span class="seq" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {DOMAINS.map((d) => (
+            <span class="item">
+              <span class="domain">{d.domain}</span>
+              <span class="tools"> [{d.tools.join(' · ')}]</span>
+              <span class="sep"> · </span>
+            </span>
+          ))}
+        </span>
+      ))
+    }
   </div>
 </div>
 
@@ -16,24 +27,38 @@ const line = DOMAINS.join(' · ') + ' · ';
     border-block: 1px solid var(--line);
     overflow: hidden;
     white-space: nowrap;
-    padding-block: 0.65rem;
+    padding-block: 0.7rem;
   }
 
   .track {
     display: inline-block;
-    color: var(--ink-muted);
-    font-size: 0.65rem;
-    letter-spacing: 0.18em;
+    font-family: var(--font-pixel);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
   }
 
-  .track span {
-    padding-right: 0.4em;
+  .domain {
+    color: rgba(234, 227, 210, 0.8);
+  }
+
+  .tools,
+  .sep {
+    color: var(--support);
+    opacity: 0.75;
+  }
+
+  .item .sep {
+    margin-inline: 0.5em;
   }
 
   /* motion inventory item 1: strip drift (DESIGN.md §6) */
   @media (prefers-reduced-motion: no-preference) {
     .track {
-      animation: drift 40s linear infinite;
+      animation: drift 55s linear infinite;
+    }
+
+    .strip:hover .track {
+      animation-play-state: paused;
     }
 
     @keyframes drift {
@@ -42,6 +67,4 @@ const line = DOMAINS.join(' · ') + ' · ';
       }
     }
   }
-
-  /* reduced motion: static single line, second copy stays hidden past overflow */
 </style>
