@@ -29,3 +29,12 @@ pnpm-debug.log*
 
 #context files
 prompt.md
+opencode.json
+.opencode/
+
+# local-only docs & agent context (kept on disk, not in the repo)
+DESIGN.md
+CLAUDE.md
+AGENTS.md
+plan.md
+docs/
