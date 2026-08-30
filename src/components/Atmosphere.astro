@@ -1,20 +1,561 @@
 ---
 /**
- * Site-wide cosmic atmosphere — DESIGN.md §9.
- * CSS-only, animates opacity/transform exclusively.
- * Depth trick: `.far` + `.nebula` are fixed (don't scroll), `.near` is
- * absolute (scrolls with content) — scrolling itself creates parallax,
- * zero JavaScript.
- * The meteor is the site's single rare event: one dim streak ~every 84s.
+ * Site-wide cosmic atmosphere — v2 experiment, Step 1 (static realism).
+ *
+ * Two stacked fixed canvases behind the content plane:
+ *
+ *   #sky-gl    — the v1 hand-written WebGL fragment quad: Milky Way band
+ *                (granular dust + dark absorption lanes), horizon airglow,
+ *                observatory-side luminosity. Unchanged from v1.
+ *
+ *   #stars-gl  — NEW: a Three.js Points cloud of ~3,500 REAL stars in a
+ *                3D volume (one draw call), lazy-loaded after idle:
+ *                  · temperature-based color from a Planckian-style ramp
+ *                    (cool M-dwarfs faint amber, rare hot stars blue-white)
+ *                  · power-law magnitudes: thousands sub-pixel, few bright
+ *                  · baked extinction: stars dim behind dust voids
+ *                  · band-biased density, matching the sky quad's band
+ *                Motion (simplex twinkle, pointer parallax, scroll depth,
+ *                shooting star) lands in Step 2 — this build is static.
+ *
+ * Fallbacks: no WebGL / no JS → static CSS star layers below.
+ * Reduced motion → identical in Step 1 (nothing moves).
+ * Three.js loads via dynamic import() — zero cost to first paint.
  */
 ---
 
 <div class="sky" aria-hidden="true">
-  <div class="far"></div>
-  <div class="near"></div>
-  <div class="nebula"></div>
-  <div class="meteor"></div>
+  <div class="sky-fallback">
+    <div class="far"></div>
+    <div class="near"></div>
+    <div class="nebula"></div>
+  </div>
+  <canvas id="sky-gl"></canvas>
+  <canvas id="stars-gl"></canvas>
+  <div class="veil"></div>
 </div>
+
+<script>
+  /* ============ canvas 1: the sky quad (v1 shader, unchanged) ============ */
+  const canvas = document.getElementById('sky-gl') as HTMLCanvasElement | null;
+  const fallback = document.querySelector('.sky-fallback');
+
+  const VERT = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+
+  const FRAG = `
+precision mediump float;
+uniform vec2 u_res;
+uniform float u_time;
+
+float hash(vec2 p){
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+vec2 hash2(vec2 p){
+  vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.xx + p3.yz) * p3.zy);
+}
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p){
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.03; a *= 0.5; }
+  return v;
+}
+
+vec3 stars(vec2 sp, float cell, float density, float seed, float cluster){
+  vec2 g  = sp / cell + seed * 17.0;
+  vec2 id = floor(g);
+  vec2 f  = fract(g);
+  if (hash(id + seed) > density * cluster) return vec3(0.0);
+  vec2 pos = 0.2 + 0.6 * hash2(id + seed * 2.0);
+  float d   = length((f - pos) * cell);
+  float mag = pow(hash(id + seed * 3.0), 5.0);
+
+  float ph  = hash(id + seed * 7.0) * 6.2831;
+  float spd = 0.25 + 0.6 * hash(id + seed * 9.0);
+  float tw  = 0.84 + 0.16 * sin(u_time * spd + ph);
+  tw = mix(1.0, tw, step(0.25, mag));
+
+  float core = smoothstep(0.95, 0.15, d) * (0.22 + 0.78 * mag) * tw;
+  float halo = exp(-d * d / 9.0) * mag * mag * 0.26 * tw;
+
+  float cool = hash(id + seed * 5.0);
+  vec3 tint = mix(vec3(0.918, 0.890, 0.824), vec3(0.62, 0.74, 0.92), step(0.6, cool) * 0.7);
+  return tint * (core + halo);
+}
+
+void main(){
+  vec2 sp = gl_FragCoord.xy;
+  vec2 uv = sp / u_res;
+  float aspect = u_res.x / u_res.y;
+
+  vec2 drift = vec2(-0.00055, 0.00022) * u_time;
+  vec2 np = vec2(uv.x * aspect, uv.y) + drift * vec2(aspect, 1.0);
+  vec2 spD = sp + drift * u_res;
+
+  float horiz = pow(1.0 - uv.y, 2.6);
+  vec3 col = vec3(0.30, 0.50, 0.62) * horiz * 0.08;
+  float a  = horiz * 0.08;
+
+  float lglow = exp(-pow(length((uv - vec2(0.74, 0.86)) * vec2(aspect, 1.0)), 2.0) / 0.55);
+  col += vec3(0.455, 0.647, 0.855) * lglow * 0.02;
+  a   += lglow * 0.025;
+
+  vec2 bp = np - vec2(aspect * 0.60, 0.45);
+  vec2 bdir = normalize(vec2(0.42, 0.91));
+  float across = dot(bp, vec2(-bdir.y, bdir.x));
+  float along  = dot(bp, bdir);
+  float band = exp(-across * across / 0.035);
+
+  float lanes = smoothstep(0.52, 0.85, fbm(vec2(along * 2.1, across * 8.5) + vec2(3.1, 7.7)));
+  band *= 1.0 - lanes * 0.6 * band;
+
+  float coreGlow = exp(-pow((along - 0.30) * 1.7, 2.0) - pow(across * 2.6, 2.0));
+
+  float grain = smoothstep(0.30, 0.80, fbm(np * 15.0 + vec2(9.1, 2.3)));
+  float mw = band * (0.20 + 0.80 * grain) + coreGlow * 0.5;
+  vec3 mwCol = mix(vec3(0.34, 0.44, 0.60), vec3(0.60, 0.70, 0.87), grain);
+  col += mwCol * mw * 0.13;
+  a   += mw * 0.13;
+
+  /* the quad now carries only the faint unresolved dust; the crisp
+     starfield lives in the Three.js points layer on top */
+  float cluster = 0.22 + 0.40 * fbm(np * 0.5 + vec2(7.7, 3.3)) + band * 3.2;
+  vec3 st = vec3(0.0);
+  st += stars(spD, 8.0, 0.45, 1.0, cluster) * 0.30;
+  st += stars(spD, 22.0, 0.20, 2.0, cluster) * 0.35;
+  col += st;
+  a = clamp(a + max(st.r, max(st.g, st.b)), 0.0, 1.0);
+
+  /* the rare event: a crisp, thin streak with an exponentially
+     decaying ionized tail — one slow drift every ~5.5s */
+  {
+    float interval = 5.5;
+    float idx = floor(u_time / interval);
+    float life = fract(u_time / interval) * interval;
+    vec2 sd = vec2(hash(vec2(idx, 3.0)), hash(vec2(idx, 7.0)));
+    vec2 start = vec2((0.15 + 0.70 * sd.x) * aspect, 0.72 + 0.26 * sd.y);
+    vec2 dir = normalize(vec2(-0.78, -0.42) + 0.25 * (sd - 0.5));
+    vec2 perp = vec2(-dir.y, dir.x);
+    float head = life * 0.28;                    /* slow drift */
+    vec2 rel = np - start;
+    float along = dot(rel, dir);
+    float off = abs(dot(rel, perp));
+    float behind = head - along;
+    float tail = exp(-max(behind, 0.0) * 16.0);  /* ionized decay */
+    float body = step(0.0, along) * step(0.0, behind);
+    float env = smoothstep(0.0, 0.25, life) * exp(-max(life - 2.0, 0.0) * 1.4);
+    float streak = exp(-off * off * 260000.0) * tail * body * env;
+    col += vec3(0.82, 0.88, 1.0) * streak * 0.75;
+    a = clamp(a + streak * 0.75, 0.0, 1.0);
+  }
+
+  gl_FragColor = vec4(col, a);
+}`;
+
+  let gl: WebGLRenderingContext | null = null;
+  try {
+    gl = canvas?.getContext('webgl', {
+      alpha: true,
+      antialias: false,
+      depth: false,
+      stencil: false,
+      powerPreference: 'low-power',
+    }) ?? null;
+  } catch {
+    gl = null;
+  }
+
+  if (!canvas || !gl) {
+    canvas?.remove(); // CSS fallback stays
+  } else {
+    fallback?.remove();
+
+    const compile = (type: number, src: string) => {
+      const s = gl!.createShader(type)!;
+      gl!.shaderSource(s, src);
+      gl!.compileShader(s);
+      return s;
+    };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'u_res');
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // premultiplied
+    gl.clearColor(0, 0, 0, 0);
+
+    const size = () => {
+      const res =
+        Math.min(window.devicePixelRatio || 1, 1.5) * (window.innerWidth < 700 ? 0.6 : 0.85);
+      canvas.width = Math.max(1, Math.round(window.innerWidth * res));
+      canvas.height = Math.max(1, Math.round(window.innerHeight * res));
+      gl!.viewport(0, 0, canvas.width, canvas.height);
+      gl!.uniform2f(uRes, canvas.width, canvas.height);
+    };
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const t0 = performance.now();
+    let last = 0;
+
+    const draw = (now: number) => {
+      gl!.uniform1f(uTime, (now - t0) / 1000);
+      gl!.clear(gl!.COLOR_BUFFER_BIT);
+      gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+    };
+
+    size();
+
+    if (reduced) {
+      draw(t0); // one frozen frame, no loop
+      let t: number | undefined;
+      window.addEventListener('resize', () => {
+        window.clearTimeout(t);
+        t = window.setTimeout(() => {
+          size();
+          draw(t0);
+        }, 150);
+      });
+    } else {
+      const loop = (now: number) => {
+        if (now - last >= 33) {
+          last = now;
+          draw(now);
+        }
+        requestAnimationFrame(loop);
+      };
+      requestAnimationFrame(loop);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) last = 0;
+      });
+      let t: number | undefined;
+      window.addEventListener('resize', () => {
+        window.clearTimeout(t);
+        t = window.setTimeout(size, 150);
+      });
+    }
+  }
+
+  /* ============ canvas 2: Three.js points starfield (Step 1) ============
+     Real positions, per-star temperature/magnitude/extinction.
+     Lazy-loaded after idle — the sky above paints first. */
+  const starsCanvas = document.getElementById('stars-gl') as HTMLCanvasElement | null;
+
+  const bootStars = async () => {
+    if (!starsCanvas) return;
+    try {
+      const THREE = await import('three');
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: starsCanvas,
+        alpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        powerPreference: 'low-power',
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setClearColor(0x000000, 0);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth / window.innerHeight,
+        1,
+        2000
+      );
+
+      /* deterministic sky — same stars every visit */
+      const mulberry32 = (a: number) => () => {
+        a |= 0;
+        a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+      const rand = mulberry32(4604);
+      const gauss = () => rand() + rand() + rand() - 1.5; // cheap approx
+
+      const isMobile = window.innerWidth < 700;
+      const COUNT = isMobile ? 1100 : 2600;
+
+      const pos = new Float32Array(COUNT * 3);
+      const col = new Float32Array(COUNT * 3);
+      const size = new Float32Array(COUNT);
+      const phase = new Float32Array(COUNT);
+
+      /* restrained stellar palette: ~90% cool whites (#E2E8F0 family)
+         with faint deep-blue shifts (#38BDF8 family), ~10% rare dim
+         sub-3000K warm dwarfs (#FDE047 family, kept faint and small) */
+      const tempColor = (t: number): [number, number, number] => {
+        const k = Math.min(1, Math.max(0, (t - 2500) / 9500));
+        if (k < 0.5) {
+          const u = k * 2;
+          return [0.99, 0.87 + 0.07 * u, 0.65 + 0.26 * u]; // dim warm ember
+        }
+        const u = (k - 0.5) * 2;
+        return [0.89 - 0.20 * u, 0.91 - 0.10 * u, 0.94 + 0.03 * u]; // white → cool blue
+      };
+
+      /* value noise in JS for baked extinction */
+      const vhash = (x: number, y: number) => {
+        const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+        return s - Math.floor(s);
+      };
+      const vnoise = (x: number, y: number) => {
+        const xi = Math.floor(x),
+          yi = Math.floor(y);
+        const xf = x - xi,
+          yf = y - yi;
+        const u = xf * xf * (3 - 2 * xf),
+          v = yf * yf * (3 - 2 * yf);
+        return (
+          vhash(xi, yi) * (1 - u) * (1 - v) +
+          vhash(xi + 1, yi) * u * (1 - v) +
+          vhash(xi, yi + 1) * (1 - u) * v +
+          vhash(xi + 1, yi + 1) * u * v
+        );
+      };
+
+      for (let i = 0; i < COUNT; i++) {
+        const z = -(80 + rand() * 820);
+        const spread = -z / 900; // 0.09 .. 1
+        let x = (rand() * 2 - 1) * -z * 0.85;
+        let y = (rand() * 2 - 1) * -z * 0.55;
+
+        /* 40% of stars gather along a diagonal band (matches sky quad) */
+        if (rand() < 0.4) {
+          y = x * 0.42 + gauss() * -z * 0.14 + -z * 0.1;
+        }
+
+        pos[i * 3] = x;
+        pos[i * 3 + 1] = y;
+        pos[i * 3 + 2] = z;
+
+        /* magnitude: power law — many sub-pixel pinpricks, few bright */
+        const mag = Math.pow(rand(), 3.2);
+        size[i] = 0.7 + mag * 1.1; // 0.7–1.8px, never bokeh
+
+        /* palette per the brief: ~90% cool white / faint deep blue,
+           ~10% rare dim warm dwarfs (kept small and faint) */
+        const u = rand();
+        let temp: number;
+        let lumScale = 1;
+        if (u < 0.1) {
+          temp = 2400 + rand() * 900;
+          lumScale = 0.5;
+          size[i] *= 0.8;
+        } else if (u < 0.88) {
+          temp = 5400 + rand() * 2200;
+        } else {
+          temp = 8000 + rand() * 4000;
+        }
+        const [r, g, b] = tempColor(temp);
+
+        /* baked extinction: dust voids genuinely swallow starlight */
+        const n =
+          vnoise(x * 0.004 + 9.1, y * 0.006 + 2.3) * 0.65 +
+          vnoise(x * 0.012, y * 0.018) * 0.35;
+        const extinct = 1.0 - Math.max(0, (n - 0.52) / 0.28) * 0.7;
+
+        const lum = (0.22 + mag * 0.8) * extinct * lumScale * (0.55 + spread * 0.45);
+        col[i * 3] = r * lum;
+        col[i * 3 + 1] = g * lum;
+        col[i * 3 + 2] = b * lum;
+
+        phase[i] = rand() * Math.PI * 2;
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('aColor', new THREE.BufferAttribute(col, 3));
+      geo.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+      geo.setAttribute('aPhase', new THREE.BufferAttribute(phase, 1));
+
+      const mat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: {
+          uTime: { value: 0 },
+          uPx: { value: Math.min(window.devicePixelRatio || 1, 1.5) },
+        },
+        vertexShader: `
+          attribute vec3 aColor;
+          attribute float aSize;
+          attribute float aPhase;
+          uniform float uTime;
+          uniform float uPx;
+          varying vec3 vColor;
+          varying float vBright;
+
+          /* Ashima 3D simplex noise — organic per-star scintillation,
+             not Math.random twinkle */
+          vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}
+          vec4 mod289(vec4 x){return x - floor(x * (1.0/289.0)) * 289.0;}
+          vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+          vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+          float snoise(vec3 v){
+            const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+            const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+            vec3 i  = floor(v + dot(v, C.yyy));
+            vec3 x0 = v - i + dot(i, C.xxx);
+            vec3 g = step(x0.yzx, x0.xyz);
+            vec3 l = 1.0 - g;
+            vec3 i1 = min(g.xyz, l.zxy);
+            vec3 i2 = max(g.xyz, l.zxy);
+            vec3 x1 = x0 - i1 + C.xxx;
+            vec3 x2 = x0 - i2 + C.yyy;
+            vec3 x3 = x0 - D.yyy;
+            i = mod289(i);
+            vec4 p = permute(permute(permute(
+                      i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                    + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                    + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+            float n_ = 0.142857142857;
+            vec3 ns = n_ * D.wyz - D.xzx;
+            vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+            vec4 x_ = floor(j * ns.z);
+            vec4 y_ = floor(j - 7.0 * x_);
+            vec4 x = x_ * ns.x + ns.yyyy;
+            vec4 y = y_ * ns.x + ns.yyyy;
+            vec4 h = 1.0 - abs(x) - abs(y);
+            vec4 b0 = vec4(x.xy, y.xy);
+            vec4 b1 = vec4(x.zw, y.zw);
+            vec4 s0 = floor(b0)*2.0 + 1.0;
+            vec4 s1 = floor(b1)*2.0 + 1.0;
+            vec4 sh = -step(h, vec4(0.0));
+            vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+            vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+            vec3 p0 = vec3(a0.xy, h.x);
+            vec3 p1 = vec3(a0.zw, h.y);
+            vec3 p2 = vec3(a1.xy, h.z);
+            vec3 p3 = vec3(a1.zw, h.w);
+            vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+            p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+            vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+            m = m * m;
+            return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+          }
+
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            /* atmospheric scintillation: ±20%, brighter stars breathe,
+               the dust-fine majority stays steady */
+            float n = snoise(vec3(position.x * 0.015 + aPhase, position.y * 0.015, uTime * 0.25));
+            float tw = mix(1.0, 0.80 + 0.20 * n, step(0.9, aSize));
+            vColor = aColor * tw;
+            vBright = smoothstep(1.5, 1.8, aSize);
+            gl_PointSize = aSize * uPx * clamp(520.0 / -mv.z, 0.75, 1.4);
+            gl_Position = projectionMatrix * mv;
+          }
+        `,
+        fragmentShader: `
+          precision mediump float;
+          varying vec3 vColor;
+          varying float vBright;
+          void main() {
+            vec2 c = gl_PointCoord - 0.5;
+            float d = length(c) * 2.0;
+            float core = smoothstep(0.60, 0.42, d); /* crisp edge, 1px AA */
+            float halo = exp(-d * d * 6.0) * 0.16 * vBright;
+            float alpha = core + halo;
+            if (alpha < 0.02) discard;
+            gl_FragColor = vec4(vColor * alpha, alpha);
+          }
+        `,
+      });
+
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+
+      const resize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduced) {
+        renderer.render(scene, camera); // frozen sky, no loop
+        window.addEventListener('resize', () => renderer.render(scene, camera));
+        starsCanvas.classList.add('ready');
+        return;
+      }
+
+      /* pointer micro-parallax: the camera drifts a few world-units
+         toward the cursor — real depth, because the stars have real
+         positions. Fine pointers only; touch devices skip it. */
+      let px = 0,
+        py = 0;
+      if (window.matchMedia('(pointer: fine)').matches) {
+        window.addEventListener(
+          'pointermove',
+          (e) => {
+            px = (e.clientX / window.innerWidth) * 2 - 1;
+            py = (e.clientY / window.innerHeight) * 2 - 1;
+          },
+          { passive: true }
+        );
+      }
+
+      const t0 = performance.now();
+      let last = 0;
+      const loop = (now: number) => {
+        requestAnimationFrame(loop);
+        if (now - last < 33) return; // ~30fps is plenty for this subtlety
+        last = now;
+        const t = (now - t0) / 1000;
+        mat.uniforms.uTime.value = t;
+
+        /* earth-turn drift: the whole volume rotates ~1°/min */
+        points.rotation.z = t * 0.0003;
+
+        /* scroll depth: the sky holds still while content moves —
+           scrolling itself becomes parallax */
+        const sy = Math.min(window.scrollY * 0.004, 26);
+
+        camera.position.x += (px * 12 - camera.position.x) * 0.04;
+        camera.position.y += (-py * 7 + sy - camera.position.y) * 0.04;
+
+        renderer.render(scene, camera);
+      };
+      requestAnimationFrame(loop);
+      starsCanvas.classList.add('ready');
+    } catch {
+      starsCanvas?.remove(); // quad + CSS fallback still carry the sky
+    }
+  };
+
+  const ric = window.requestIdleCallback as Window['requestIdleCallback'] | undefined;
+  if (typeof ric === 'function') {
+    ric(() => void bootStars(), { timeout: 2500 });
+  } else {
+    setTimeout(() => void bootStars(), 400);
+  }
+</script>
 
 <style>
   .sky {
@@ -25,43 +566,76 @@
     z-index: -1;
   }
 
+  #sky-gl,
+  #stars-gl {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* the starfield fades in once its first frame is on screen */
+  #stars-gl {
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+
+  #stars-gl.ready {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #stars-gl {
+      transition: none;
+    }
+  }
+
+  /* readability veil: soft dark radial behind the reading column so the
+     sky can never compete with typography (stars stay behind the UI) */
+  .veil {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 64% 58% at 40% 42%,
+      rgba(4, 6, 13, 0.68),
+      transparent 72%
+    );
+  }
+
+  @media (max-width: 900px) {
+    .veil {
+      background: radial-gradient(
+        ellipse 95% 62% at 50% 40%,
+        rgba(4, 6, 13, 0.68),
+        transparent 76%
+      );
+    }
+  }
+
+  /* ---- static CSS fallback (no WebGL / no JS) ---- */
   .far,
-  .nebula,
-  .meteor {
+  .near,
+  .nebula {
     position: fixed;
     inset: 0;
   }
 
-  /* distant layer — fixed, breathes slowly via two desynced sub-layers */
-  .far::before,
-  .far::after {
-    content: '';
-    position: absolute;
-    inset: 0;
+  .far {
     background-repeat: repeat;
     background-size: 620px 620px;
-  }
-
-  .far::before {
     background-image:
       radial-gradient(1px 1px at 44px 61px, rgba(234, 227, 210, 0.5), transparent),
       radial-gradient(1px 1px at 189px 322px, rgba(234, 227, 210, 0.32), transparent),
       radial-gradient(1px 1px at 402px 118px, rgba(234, 227, 210, 0.42), transparent),
-      radial-gradient(1px 1px at 543px 449px, rgba(234, 227, 210, 0.3), transparent);
-  }
-
-  .far::after {
-    background-image:
+      radial-gradient(1px 1px at 543px 449px, rgba(234, 227, 210, 0.3), transparent),
       radial-gradient(1px 1px at 118px 512px, rgba(234, 227, 210, 0.38), transparent),
       radial-gradient(1.5px 1.5px at 310px 210px, rgba(234, 227, 210, 0.28), transparent),
       radial-gradient(1px 1px at 500px 47px, rgba(234, 227, 210, 0.45), transparent),
       radial-gradient(1px 1px at 251px 590px, rgba(234, 227, 210, 0.3), transparent);
   }
 
-  /* close layer — scrolls with the page (parallax against .far) */
   .near {
     position: absolute;
-    inset: 0;
     background-repeat: repeat;
     background-size: 780px 780px;
     background-image:
@@ -77,84 +651,5 @@
       rgba(116, 165, 218, 0.07),
       transparent 70%
     );
-  }
-
-  /* the rare event — a dim streak crossing the upper sky */
-  .meteor {
-    inset: auto;
-    top: 14%;
-    right: 8%;
-    width: 110px;
-    height: 1px;
-    opacity: 0;
-    rotate: 148deg;
-    background: linear-gradient(90deg, transparent, rgba(234, 227, 210, 0.6), transparent);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .far::before {
-      animation: breathe-a 13s ease-in-out infinite alternate;
-    }
-
-    .far::after {
-      animation: breathe-b 21s ease-in-out infinite alternate;
-    }
-
-    .nebula {
-      animation: nebula-drift 240s ease-in-out infinite alternate;
-    }
-
-    .meteor {
-      animation: meteor 84s linear infinite;
-      animation-delay: 18s;
-    }
-
-    @keyframes breathe-a {
-      from {
-        opacity: 0.55;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes breathe-b {
-      from {
-        opacity: 1;
-      }
-      to {
-        opacity: 0.5;
-      }
-    }
-
-    @keyframes nebula-drift {
-      to {
-        transform: translate3d(-1.5%, 1%, 0) scale(1.05);
-      }
-    }
-
-    @keyframes meteor {
-      0% {
-        opacity: 0;
-        transform: translate3d(0, 0, 0);
-      }
-      0.4% {
-        opacity: 0.65;
-      }
-      1.8% {
-        opacity: 0;
-        transform: translate3d(-38vw, 24vh, 0);
-      }
-      100% {
-        opacity: 0;
-        transform: translate3d(-38vw, 24vh, 0);
-      }
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .meteor {
-      display: none;
-    }
   }
 </style>
