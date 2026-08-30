@@ -5,6 +5,7 @@ import now from '../data/now.json';
 ---
 
 <section class="hero">
+  <Observatory />
   <div class="wrap grid">
     <div class="intro">
       <p class="kicker">SYSTEMS · STORAGE · INFRASTRUCTURE</p>
@@ -34,18 +35,23 @@ import now from '../data/now.json';
         }
       </ul>
     </div>
-    <Observatory />
   </div>
 </section>
 
 <style>
-  /* atmosphere is site-wide now (Atmosphere.astro) — hero stays transparent */
+  /* the Observatory bleeds in from the right edge at full hero height;
+     the text floats above the scene's dark left zone */
+  .hero {
+    position: relative;
+    overflow: clip;
+  }
+
   .grid {
+    position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: 56% 1fr;
-    gap: 2.5rem;
+    grid-template-columns: minmax(0, 58%);
     padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2rem, 5vw, 3.5rem);
-    align-items: stretch;
   }
 
   .kicker {
@@ -102,9 +108,15 @@ import now from '../data/now.json';
   }
 
   @media (max-width: 900px) {
+    /* statement first, Observatory below — never above the name */
+    .hero {
+      display: flex;
+      flex-direction: column;
+    }
+
     .grid {
       grid-template-columns: 1fr;
-      gap: 2rem;
+      order: 1;
     }
   }
 </style>
