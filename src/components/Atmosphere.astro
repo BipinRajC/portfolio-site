@@ -69,6 +69,20 @@ float fbm(vec2 p){
   return v;
 }
 
+/* a crisp meteor streak: bright head, exponentially decaying tail */
+float meteor(vec2 np, float life, vec2 start, vec2 dir, float speed, float tailK, float bright){
+  vec2 perp = vec2(-dir.y, dir.x);
+  float head = life * speed;
+  vec2 rel = np - start;
+  float along = dot(rel, dir);
+  float off = abs(dot(rel, perp));
+  float behind = head - along;
+  float tail = exp(-max(behind, 0.0) * tailK);
+  float body = step(0.0, along) * step(0.0, behind);
+  float env = smoothstep(0.0, 0.25, life) * exp(-max(life - 2.0, 0.0) * 1.4);
+  return exp(-off * off * 260000.0) * tail * body * env * bright;
+}
+
 vec3 stars(vec2 sp, float cell, float density, float seed, float cluster){
   vec2 g  = sp / cell + seed * 17.0;
   vec2 id = floor(g);
@@ -134,27 +148,97 @@ void main(){
   col += st;
   a = clamp(a + max(st.r, max(st.g, st.b)), 0.0, 1.0);
 
-  /* the rare event: a crisp, thin streak with an exponentially
-     decaying ionized tail — one slow drift every ~5.5s */
+  /* M31 — Andromeda, identifiable: a long inclined lens of a disk
+     with a dark dust lane silhouetted along its near edge, a bright
+     warm-white nucleus (slightly offset — the real P1/P2 asymmetry),
+     blue outer disk tips, a broad halo, and both companions:
+     M110 diffuse above the disk, M32 compact beside the nucleus */
+  {
+    vec2 gc = vec2(0.105 * aspect, 0.865);
+    float tilt = -0.62;
+    mat2 R = mat2(cos(tilt), -sin(tilt), sin(tilt), cos(tilt));
+    vec2 gp = R * (np - gc); /* x runs along the major axis */
+
+    /* disk: a clearly elliptical lens, light toward the nucleus */
+    vec2 dp = gp * vec2(1.0, 3.2);
+    float disk = exp(-dot(dp, dp) / 0.048);
+    disk *= 0.55 + 0.45 * exp(-abs(gp.x) * 6.0);
+
+    /* the near-side dust lane cuts a dark line through the glow */
+    float lane = exp(-pow((gp.y + 0.014) / 0.008, 2.0)) * exp(-gp.x * gp.x / 0.02);
+    disk *= 1.0 - 0.65 * lane;
+
+    /* clumpy arm texture */
+    disk *= 0.72 + 0.45 * fbm(gp * vec2(14.0, 42.0) + 5.0);
+
+    float nuc  = exp(-dot(gp - vec2(0.006, 0.0), gp - vec2(0.006, 0.0)) / 0.0011);
+    vec2 hp = gp * vec2(1.0, 1.4);
+    float halo = exp(-dot(hp, hp) / 0.10);
+
+    /* warm-white core cooling to blue at the disk tips */
+    vec3 gcol = mix(vec3(0.62, 0.70, 0.94), vec3(0.98, 0.93, 0.82), exp(-dot(gp, gp) / 0.004));
+
+    float lum = disk * 0.75 + nuc * 1.2 + halo * 0.22;
+    col += gcol * lum * 0.24;
+    a += lum * 0.24;
+
+    /* M110 — diffuse elliptical above the disk */
+    vec2 c1 = np - (gc + vec2(-0.08, 0.06));
+    vec2 c1p = c1 * vec2(1.0, 1.7);
+    float m110 = exp(-dot(c1p, c1p) / 0.0022);
+    col += vec3(0.80, 0.82, 0.90) * m110 * 0.11;
+    a += m110 * 0.11;
+
+    /* M32 — compact, tight against the nucleus */
+    vec2 c2 = np - (gc + vec2(0.06, -0.08));
+    float m32 = exp(-dot(c2, c2) / 0.0006);
+    col += vec3(0.85, 0.85, 0.90) * m32 * 0.13;
+    a += m32 * 0.13;
+  }
+
+  /* the rare event: a crisp streak with an exponentially decaying
+     ionized tail — one slow drift every ~5.5s, spread across the whole
+     sky: any start in the upper sky, any downward-ish direction, varied
+     speeds. ~20% get a dimmer, shorter twin ~1s later (meteor pairs) */
   {
     float interval = 5.5;
     float idx = floor(u_time / interval);
     float life = fract(u_time / interval) * interval;
     vec2 sd = vec2(hash(vec2(idx, 3.0)), hash(vec2(idx, 7.0)));
-    vec2 start = vec2((0.15 + 0.70 * sd.x) * aspect, 0.72 + 0.26 * sd.y);
-    vec2 dir = normalize(vec2(-0.78, -0.42) + 0.25 * (sd - 0.5));
-    vec2 perp = vec2(-dir.y, dir.x);
-    float head = life * 0.28;                    /* slow drift */
-    vec2 rel = np - start;
-    float along = dot(rel, dir);
-    float off = abs(dot(rel, perp));
-    float behind = head - along;
-    float tail = exp(-max(behind, 0.0) * 16.0);  /* ionized decay */
-    float body = step(0.0, along) * step(0.0, behind);
-    float env = smoothstep(0.0, 0.25, life) * exp(-max(life - 2.0, 0.0) * 1.4);
-    float streak = exp(-off * off * 260000.0) * tail * body * env;
-    col += vec3(0.82, 0.88, 1.0) * streak * 0.75;
-    a = clamp(a + streak * 0.75, 0.0, 1.0);
+    vec2 start = vec2((0.05 + 0.90 * sd.x) * aspect, 0.60 + 0.42 * sd.y);
+    /* always diagonal: slope 0.45–0.95, down-left or down-right */
+    float slope = 0.45 + 0.5 * hash(vec2(idx, 41.0));
+    vec2 dir = normalize(vec2(hash(vec2(idx, 43.0)) < 0.3 ? 1.0 : -1.0, -slope));
+    float speed = 0.22 + 0.16 * hash(vec2(idx, 47.0));
+    float streak = meteor(np, life, start, dir, speed, 16.0, 0.75);
+    if (hash(vec2(idx, 11.0)) < 0.2) {
+      vec2 cstart = start + vec2((hash(vec2(idx, 13.0)) - 0.5) * 0.05 * aspect,
+                                 (hash(vec2(idx, 17.0)) - 0.5) * 0.05);
+      vec2 cdir = normalize(dir + 0.08 * (vec2(hash(vec2(idx, 19.0)), hash(vec2(idx, 23.0))) - 0.5));
+      streak += meteor(np, life - 0.9, cstart, cdir, speed * 0.9, 24.0, 0.32);
+    }
+    col += vec3(0.82, 0.88, 1.0) * streak;
+    a = clamp(a + streak, 0.0, 1.0);
+  }
+
+  /* satellite: a dim point crossing the high sky in a dead-straight
+     line over ~26s, flaring once mid-crossing, every ~45s */
+  {
+    float sInt = 45.0;
+    float sLife = mod(u_time + 30.0, sInt);
+    float sDur = 26.0;
+    float sIdx = floor((u_time + 30.0) / sInt);
+    vec2 sh = vec2(hash(vec2(sIdx, 29.0)), hash(vec2(sIdx, 31.0)));
+    vec2 sstart = vec2((0.05 + 0.35 * sh.x) * aspect, 0.80 + 0.15 * sh.y);
+    vec2 sdir = normalize(vec2(1.0, -0.10 - 0.25 * hash(vec2(sIdx, 37.0))));
+    vec2 spos = sstart + sdir * sLife * 0.045 * vec2(aspect, 1.0);
+    vec2 srel = np - spos;
+    float sdot = exp(-dot(srel, srel) * 240000.0);
+    float flare = 1.0 + 2.2 * exp(-pow(sLife - sDur * 0.55, 2.0) / 0.35);
+    float senv = smoothstep(0.0, 2.5, sLife) * smoothstep(sDur, sDur - 2.5, sLife);
+    float sat = sdot * senv * flare * step(sLife, sDur) * 0.4;
+    col += vec3(0.85, 0.89, 0.96) * sat;
+    a = clamp(a + sat, 0.0, 1.0);
   }
 
   gl_FragColor = vec4(col, a);
