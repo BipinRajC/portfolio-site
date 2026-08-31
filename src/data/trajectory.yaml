@@ -1,36 +1,55 @@
 # Trajectory — living goals list. Edit freely; the page renders from this file.
 # Item shape: { text, done: 'YYYY-MM-DD' (optional), evidence: url (optional) }
-# PLACEHOLDER items throughout — user replaces with real objectives.
+# Completed items float to the top of their category, oldest first.
 
 categories:
-  - id: build
-    title: Build
+  - id: technology
+    title: Technology
     items:
-      - text: Publish a research paper (placeholder)
-        done: '2026-06-01'
-      - text: Ship an open-source tool people actually use (placeholder)
-      - text: Build a homelab cluster (placeholder)
+      - text: Completely ditch Windows for Arch Linux
+        done: '2025-04-02'
+      - text: Build a FIFA World Cup predictive-modelling project that helps with sports betting
+        done: '2026-07-05'
+        evidence: https://github.com/BipinRajC/FIFA-WC-2026-ML-predictor/
+      - text: Make an open-source contribution and get a PR merged, so the community actually benefits
+      - text: Shift Namma Pothole to a fully cloud-native architecture (Azure/AWS)
+      - text: Learn DaVinci Resolve through YouTube, and experiment with MCPs and skills
+      - text: Build a UGC page around geopolitics and post content
 
-  - id: learn
-    title: Learn
+  - id: health
+    title: Health
     items:
-      - text: Get comfortable writing an OS kernel module (placeholder)
-      - text: Learn a systems language deeply (placeholder)
+      - text: 35 push-ups in one go
+        done: '2026-06-08'
+      - text: 50 push-ups in one go
+      - text: Run 5K
+      - text: Run 10K
+      - text: Bodyweight at 66kg with toned muscle
+      - text: Achieve a six-pack
 
-  - id: explore
-    title: Explore
+  - id: events
+    title: Events to Attend
     items:
-      - text: See an aurora (placeholder)
-      - text: Visit a supercomputing facility (placeholder)
+      - text: Supercomputing Conference '26 (SC26), Chicago
+      - text: The next bi0s meetups
 
-  - id: experience
-    title: Experience
+  - id: travel
+    title: Travelling
     items:
-      - text: Attend a major systems conference (placeholder)
-      - text: Give a public technical talk (placeholder)
+      - text: Andaman Islands
+        done: '2026-08-21'
+      - text: Thailand boys trip
+      - text: Scandinavia, for the Northern Lights
+      - text: Skydiving in New Zealand or Dubai
+      - text: Spain, Morocco & Portugal for the 2030 FIFA World Cup
+      - text: Visit China
 
-  - id: someday
-    title: Someday
+  - id: life
+    title: Life & Misc
     items:
-      - text: Watch a rocket launch in person (placeholder)
-      - text: Write something longer than a blog post (placeholder)
+      - text: Start a blog
+      - text: Start an Instagram page for luckmaxxing and visibility
+      - text: Start a UGC page and post content
+      - text: Obtain a stable side income
+      - text: Own a car
+      - text: Master personal finance and investing

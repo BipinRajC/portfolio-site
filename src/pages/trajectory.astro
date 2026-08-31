@@ -3,10 +3,20 @@ import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import trajectory from '../data/trajectory.yaml';
 
-const categories = trajectory.categories.map((c) => ({
-  ...c,
-  done: c.items.filter((i) => i.done).length,
-}));
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+const categories = trajectory.categories.map((c) => {
+  const done = c.items
+    .filter((i) => i.done)
+    .sort((a, b) => new Date(a.done!).valueOf() - new Date(b.done!).valueOf());
+  const pending = c.items.filter((i) => !i.done);
+  return { ...c, items: [...done, ...pending], done: done.length };
+});
 ---
 
 <Base
@@ -18,11 +28,21 @@ const categories = trajectory.categories.map((c) => ({
       <SectionLabel text="TRAJECTORY" />
       <h1 class="serif">A public record of where I'm headed.</h1>
       <p class="sub">
-        Things I have not done yet — want to build, learn, explore, experience. Completed items
-        stay, dated. A living list inspired by the
+        One of the best feelings in the world is striking something off a to-do list. This
+        page is that feeling but made public, a running ledger of things I want to build, learn,
+        explore, and become, kept out in the open so the internet can hold me accountable on
+        the days motivation won't.
+      </p>
+      <p class="sub">
+        The list is deliberately unfinishable. It grows as I do and every crossed-off item tends
+        to spawn more, and catching up with it should stay impossible. A completed list
+        would mean the curiosity ran out, and I'd rather that never happens.
+      </p>
+      <p class="credit mono">
+        INSPIRED BY DIOGO CORREIA'S{' '}
         <a href="https://diogotc.com/impossiblelist/" target="_blank" rel="noopener"
-          >Impossible List</a
-        >.
+          >IMPOSSIBLE LIST ↗</a
+        >
       </p>
     </header>
 
@@ -39,10 +59,10 @@ const categories = trajectory.categories.map((c) => ({
             {cat.items.map((item) => (
               <li class:list={{ done: !!item.done }}>
                 <span class="text">{item.text}</span>
-                {item.done && <span class="date mono">({item.done})</span>}
-                {item.evidence && (
+                {item.done && <span class="date mono">({fmtDate(item.done)})</span>}
+                {item.done && item.evidence && (
                   <a class="evidence mono" href={item.evidence} target="_blank" rel="noopener">
-                    EVIDENCE ↗
+                    — VIEW REPO ↗
                   </a>
                 )}
               </li>
@@ -60,14 +80,26 @@ const categories = trajectory.categories.map((c) => ({
   }
 
   h1 {
-    font-size: var(--text-title);
+    font-size: calc(var(--text-title) * 1.5);
     margin-bottom: 1rem;
   }
 
   .sub {
     color: var(--ink-muted);
-    max-width: 56ch;
-    font-size: var(--text-small);
+    max-width: 58ch;
+    font-size: calc(var(--text-small) * 1.2);
+    line-height: 1.75;
+  }
+
+  .sub + .sub {
+    margin-top: 0.7rem;
+  }
+
+  .credit {
+    margin-top: 1.2rem;
+    font-size: var(--text-meta);
+    letter-spacing: var(--track-meta);
+    color: var(--ink-faint);
   }
 
   .cat {
@@ -94,28 +126,57 @@ const categories = trajectory.categories.map((c) => ({
   .items {
     list-style: none;
     padding: 0;
-    max-width: 62ch;
   }
 
+  /* one line per goal: bullet and text baseline-aligned, no spilling */
   .items li {
-    padding-block: 0.45rem;
-    color: var(--ink-muted);
     display: flex;
     align-items: baseline;
-    gap: 0.8rem;
-    flex-wrap: wrap;
+    gap: 0.7rem;
+    padding-block: 0.45rem;
+    white-space: nowrap;
+    color: var(--ink-muted);
+  }
+
+  .items li::before {
+    content: '●';
+    font-size: 0.45rem;
+    line-height: 1;
+    transform: translateY(-0.25em); /* optically center the dot on the text line */
+    flex-shrink: 0;
+    color: var(--ink-faint);
   }
 
   .items li.done {
     color: var(--ink);
   }
 
+  .items li.done::before {
+    color: var(--accent);
+  }
+
+  .items li.done .text {
+    text-decoration: line-through;
+  }
+
   .date {
     color: var(--accent);
     font-size: 0.65rem;
+    margin-left: 0.4rem;
+    white-space: nowrap;
   }
 
   .evidence {
     font-size: 0.65rem;
+    margin-left: -0.31rem;
+    white-space: nowrap;
+  }
+
+  /* narrow screens: allow wrapping instead of overflow */
+  @media (max-width: 900px) {
+    .items li {
+      white-space: normal;
+      flex-wrap: wrap;
+    }
   }
 </style>
