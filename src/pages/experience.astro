@@ -1,62 +1,80 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
-
-const AREAS = [
-  {
-    title: 'Autonomous Storage Orchestration',
-    meta: 'CEPH · CRUSH · NGSM · HPC',
-    /* <!-- PLACEHOLDER: replace with final copy --> */
-    narrative:
-      'Engineering autonomous storage orchestration for exascale systems within the NGSM framework — working with Ceph’s decentralized architecture and CRUSH-driven data placement, focused on proactive self-healing, autonomous orchestration, and scalability for high-density HPC systems.',
-    built: [
-      'Placeholder — orchestration work item to be detailed',
-      'Placeholder — self-healing work item to be detailed',
-      'Placeholder — scalability work item to be detailed',
-    ],
-  },
-  {
-    title: 'Slingshot Simulation & Monitoring',
-    meta: 'SLINGSHOT · DRAGONFLY · DOCKER · KAFKA · VICTORIAMETRICS',
-    /* <!-- PLACEHOLDER: replace with final copy --> */
-    narrative:
-      'Built a CLI and tooling layer to fully orchestrate and deploy simulated Slingshot network switches — making large-scale stress testing of systems and data pipelines possible without expensive, hard-to-access physical switch hardware or destructive experiments against customer-scale systems.',
-    built: [
-      'Placeholder — simulator orchestration CLI to be detailed',
-      'Placeholder — deployment automation to be detailed',
-      'Placeholder — monitoring pipeline work to be detailed',
-    ],
-  },
-];
+import { EXPERIENCE } from '../data/experience';
 ---
 
 <Base
   title="Experience"
-  description="Bipin Raj at Hewlett Packard Enterprise — autonomous storage orchestration and Slingshot network simulation."
+  description="Bipin Raj's systems history — HPE High Performance Computing, Vyuha security research, Namma Pothole, and more."
 >
   <div class="wrap">
     <header class="head">
-      <SectionLabel text="EXPERIENCE" />
-      <h1 class="serif">Where I work on machines at scale.</h1>
-      <p class="role mono">
-        HEWLETT PACKARD ENTERPRISE · SYSTEMS SOFTWARE ENGINEER · 2023—NOW
-        <!-- PLACEHOLDER: user confirms dates -->
-      </p>
+      <SectionLabel text={EXPERIENCE.header.kicker} />
+      <h1 class="serif">{EXPERIENCE.header.title}</h1>
+      {EXPERIENCE.header.lede && <p class="lede">{EXPERIENCE.header.lede}</p>}
     </header>
 
     {
-      AREAS.map((area) => (
-        <section class="area">
-          <h2 class="serif">{area.title}</h2>
-          <p class="narrative">{area.narrative}</p>
-          <p class="label kicker">WHAT I BUILT</p>
-          <ul class="built">
-            {area.built.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
-          <p class="tech mono">{area.meta}</p>
-        </section>
+      EXPERIENCE.records.map((r) => (
+        <article class:list={['record', { dossier: r.dossier }]}>
+          <div class="rec-head mono">
+            <span class="rec-num">REC {r.num}</span>
+            <span class="rec-dates">{r.dates}</span>
+          </div>
+          <h2 class="serif">{r.title}</h2>
+          <p class="role mono">
+            {r.role}{r.location && ` — ${r.location}`}
+          </p>
+          <p class="one-liner" set:html={r.oneLiner} />
+          <p class="narrative" set:html={r.narrative} />
+
+          {r.scale && <p class="scale mono">{r.scale.join(' · ')}</p>}
+
+          {r.patent && (
+            <p class="patent mono">
+              <span class="patent-dot" aria-hidden="true">●</span>
+              {r.patent}
+            </p>
+          )}
+
+          {r.aiValidation && (
+            <>
+              <p class="label mono">AI VALIDATION</p>
+              <p class="ai" set:html={r.aiValidation} />
+            </>
+          )}
+
+          {r.chain && (
+            <p class="chain mono">
+              {r.chain.map((c, i) => (
+                <span>{i > 0 && ' → '}{c}</span>
+              ))}
+            </p>
+          )}
+
+          {r.link && (
+            <p class="link mono">
+              <a href={r.link.href} target="_blank" rel="noopener">
+                {r.link.label}
+              </a>
+            </p>
+          )}
+
+          {r.contributions && (
+            <>
+              <p class="label mono">KEY CONTRIBUTIONS</p>
+              <ul class="contribs">
+                {r.contributions.map((c) => (
+                  <li set:html={c} />
+                ))}
+              </ul>
+            </>
+          )}
+
+          <p class="label mono">TECHNICAL SIGNALS</p>
+          <p class="signals mono">{r.signals}</p>
+        </article>
       ))
     }
   </div>
@@ -64,52 +82,163 @@ const AREAS = [
 
 <style>
   .head {
-    padding-block: var(--space-section) 1rem;
+    padding-block: var(--space-section) 2.5rem;
   }
 
   h1 {
-    font-size: var(--text-title);
+    font-size: var(--text-display);
+    max-width: 20ch;
     margin-bottom: 1rem;
+  }
+
+  .lede {
+    color: var(--ink-muted);
+    max-width: 62ch;
+  }
+
+  .record {
+    border-top: 1px solid var(--line);
+    padding-block: var(--space-section);
+  }
+
+  .rec-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.6rem;
+  }
+
+  .rec-num {
+    color: var(--accent);
+  }
+
+  .rec-dates {
+    color: var(--support);
+  }
+
+  .record h2 {
+    font-size: var(--text-title);
+    margin-bottom: 0.4rem;
   }
 
   .role {
     color: var(--support);
+    margin-bottom: 1.5rem;
   }
 
-  .area {
-    border-top: 1px solid var(--line);
-    margin-top: 3rem;
-    padding-top: 2.5rem;
-  }
-
-  .area h2 {
-    font-size: var(--text-title);
+  .one-liner {
+    color: var(--ink);
+    font-size: 1.05rem;
+    max-width: 80ch;
     margin-bottom: 1rem;
   }
 
   .narrative {
     color: var(--ink-muted);
-    max-width: 62ch;
-    margin-bottom: 1.75rem;
+    max-width: 80ch;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
   }
 
-  .label {
-    margin-bottom: 0.7rem;
+  /* scale strip */
+  .scale {
+    margin-block: 1.5rem;
+    border-block: 1px solid var(--line);
+    padding-block: 0.9rem;
+    color: var(--accent);
   }
 
-  .built {
-    padding-left: 1.3rem;
-    max-width: 62ch;
-    margin-bottom: 1.75rem;
+  /* patent marker — the one warm moment */
+  .patent {
+    color: var(--warm);
+    margin-bottom: 1.25rem;
   }
 
-  .built li {
-    margin-bottom: 0.4rem;
+  .patent-dot {
+    font-size: 0.5rem;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+  }
+
+  /* ai validation */
+  .ai {
     color: var(--ink-muted);
+    max-width: 80ch;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
   }
 
-  .tech {
+  /* chain */
+  .chain {
+    color: var(--support);
+    margin-block: 1.25rem;
+  }
+
+  /* link */
+  .link {
+    margin-block: 0.9rem;
+  }
+
+  /* labels + contributions */
+  .label {
+    color: var(--ink-faint);
+    margin-bottom: 0.9rem;
+  }
+
+  .contribs {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .contribs li {
+    position: relative;
+    padding-left: 1.1rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+  }
+
+  .contribs li::before {
+    content: '●';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    font-size: 0.4rem;
+    color: var(--accent);
+  }
+
+  .record strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .record em {
+    color: var(--ink);
+  }
+
+  /* signals */
+  .signals {
     color: var(--accent);
     font-size: 0.65rem;
+  }
+
+  /* Vyuha — the dossier record */
+  .record.dossier {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    padding: 2.25rem 2rem;
+  }
+
+  @media (max-width: 640px) {
+    .record.dossier {
+      padding: 1.75rem 1.25rem;
+    }
+
+    .rec-head {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
   }
 </style>
