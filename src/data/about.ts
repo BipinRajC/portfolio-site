@@ -52,11 +52,11 @@ export const ABOUT = {
     groups: [
       {
         title: 'Security & Defense',
-        items: ['Offensive Security', 'EDR / MDR', 'AI Security', 'LLM Security'],
+        items: ['Offensive Security', 'EDR / MDR', 'SIEM', 'Threat Intelligence', 'Incident Response', 'AI Security', 'LLM Security'],
       },
       {
         title: 'Systems & Infrastructure',
-        items: ['Cloud Infrastructure & Security', 'Networking', 'Ceph & Exascale Storage Systems'],
+        items: ['Cloud Infrastructure & Security', 'Networking', 'DevSecOps', 'Ceph & Exascale Storage Systems'],
       },
       {
         title: 'Data & Observability',
@@ -64,7 +64,7 @@ export const ABOUT = {
       },
       {
         title: 'AI & Agents',
-        items: ['Reinforcement Learning', 'Agentic AI Systems & Workflows'],
+        items: ['Reinforcement Learning', 'Machine Learning','Agentic AI Systems & Workflows'],
       },
     ],
   },
