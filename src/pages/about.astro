@@ -1,35 +1,141 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
-import '../styles/prose.css';
+import { ABOUT } from '../data/about';
 ---
 
-<Base title="About" description="The person behind the work.">
+<Base
+  title="About"
+  description="Bipin Raj — systems, security, and AI. HPE High Performance Computing, Vyuha EDR research, and co-founder of Namma Pothole."
+>
   <div class="wrap">
     <header class="head">
-      <SectionLabel text="ABOUT" />
-      <!-- PLACEHOLDER: opening line — user writes final copy -->
-      <h1 class="serif">Curious by default, builder by habit.</h1>
+      <SectionLabel text={ABOUT.opening.kicker} />
+      <h1 class="serif">{ABOUT.opening.title}</h1>
+      {ABOUT.opening.paragraphs.map((p) => <p class="lede">{p}</p>)}
+      <p class="linkedin mono">
+        <a href={ABOUT.opening.linkedin.href} target="_blank" rel="noopener">
+          {ABOUT.opening.linkedin.label} ↗
+        </a>
+      </p>
+      <p class="byline mono">{ABOUT.opening.byline}</p>
     </header>
 
-    <div class="prose">
-      <!-- PLACEHOLDER: replace all paragraphs with final copy -->
-      <p>
-        I'm Bipin — a systems software engineer who spends work hours on storage that heals
-        itself and off hours taking other things apart to see why they don't.
-      </p>
-      <p>
-        This page will eventually hold the longer story: the experiments, the rabbit holes, the
-        things outside software — space, nature, travel — that make this a personal corner of the
-        internet rather than a résumé with better typography.
-      </p>
-      <p>Real copy coming soon.</p>
-    </div>
+    <section class="block">
+      <SectionLabel text={ABOUT.hpe.kicker} />
+      <h2 class="serif">{ABOUT.hpe.title}</h2>
+      <p class="sub mono">{ABOUT.hpe.sub}</p>
+      <p class="prose-p">{ABOUT.hpe.paragraph}</p>
+      <div class="scale mono">
+        {ABOUT.hpe.scale.map((s) => (
+          <p>
+            <span class="scale-label">{s.label}</span>
+            <span class="scale-sep"> — </span>
+            <span class="scale-value">{s.value}</span>
+          </p>
+        ))}
+      </div>
+    </section>
 
-    <!--
-      Future slot: marginalia / sketch fragments (DESIGN.md §1.6, §12) —
-      the only pages allowed scrapbook accents are About and Trajectory.
-    -->
+    <section class="block vyuha">
+      <SectionLabel text={ABOUT.vyuha.kicker} />
+      <h2 class="serif">{ABOUT.vyuha.title}</h2>
+      <p class="sub mono">{ABOUT.vyuha.sub}</p>
+      <p class="meta mono">{ABOUT.vyuha.meta}</p>
+      <p class="patent mono">
+        <span class="patent-dot" aria-hidden="true">●</span>
+        {ABOUT.vyuha.patent}
+      </p>
+      <p class="prose-p">{ABOUT.vyuha.paragraph}</p>
+    </section>
+
+    <section class="block">
+      <SectionLabel text={ABOUT.nammaPothole.kicker} />
+      <h2 class="serif">{ABOUT.nammaPothole.title}</h2>
+      <p class="sub mono">{ABOUT.nammaPothole.sub}</p>
+      <p class="prose-p">{ABOUT.nammaPothole.paragraph}</p>
+      <p class="chain mono">
+        {ABOUT.nammaPothole.chain.map((c, i) => (
+          <span>{i > 0 && ' → '}{c}</span>
+        ))}
+      </p>
+      <p class="site-link mono">
+        <a href={ABOUT.nammaPothole.href} target="_blank" rel="noopener">
+          NAMMA POTHOLE ↗
+        </a>
+      </p>
+    </section>
+
+    <section class="block">
+      <SectionLabel text={ABOUT.strengths.kicker} />
+      <div class="strengths">
+        {ABOUT.strengths.groups.map((g) => (
+          <div class="group">
+            <h3 class="serif">{g.title}</h3>
+            <ul class="mono">
+              {g.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="block">
+      <SectionLabel text={ABOUT.education.kicker} />
+      <div class="edu">
+        <h3 class="serif">{ABOUT.education.degree.school}</h3>
+        <p class="program">{ABOUT.education.degree.program}</p>
+        <p class="meta mono">
+          {ABOUT.education.degree.period} · <span class="accent">{ABOUT.education.degree.cgpa}</span>
+        </p>
+      </div>
+      <div class="certs">
+        <h3 class="serif">Certifications</h3>
+        <ul class="mono">
+          {ABOUT.education.certifications.map((c) => (
+            <li>
+              <a href={c.href} target="_blank" rel="noopener">{c.title} ↗</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="pub">
+        <h3 class="serif">Publication</h3>
+        <p class="pub-title">
+          <a href={ABOUT.education.publication.href} target="_blank" rel="noopener">
+            {ABOUT.education.publication.title} ↗
+          </a>
+        </p>
+        <p class="meta mono">{ABOUT.education.publication.venue}</p>
+      </div>
+    </section>
+
+    <section class="block">
+      <SectionLabel text={ABOUT.toolbox.kicker} />
+      <div class="tool-grid">
+        {ABOUT.toolbox.groups.slice(0, 4).map((g) => (
+          <div class="group">
+            <h3 class="serif">{g.title}</h3>
+            <ul class="mono">
+              {g.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <details class="full-tools">
+        <summary class="mono">FULL TOOLBOX</summary>
+        <div class="tool-grid">
+          {ABOUT.toolbox.groups.map((g) => (
+            <div class="group">
+              <h3 class="serif">{g.title}</h3>
+              <ul class="mono">
+                {g.items.map((item) => <li>{item}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </details>
+    </section>
   </div>
 </Base>
 
@@ -39,7 +145,215 @@ import '../styles/prose.css';
   }
 
   h1 {
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    max-width: 22ch;
+    font-size: var(--text-display);
+    max-width: 24ch;
+    margin-bottom: 1.5rem;
+  }
+
+  .lede {
+    color: var(--ink-muted);
+    max-width: 62ch;
+    margin-bottom: 1rem;
+  }
+
+  .byline {
+    color: var(--support);
+    margin-top: 1.5rem;
+  }
+
+  .linkedin {
+    margin-top: 1.5rem;
+  }
+
+  .block {
+    border-top: 1px solid var(--line);
+    padding-block: var(--space-section);
+  }
+
+  .block h2 {
+    font-size: var(--text-title);
+    margin-bottom: 0.4rem;
+  }
+
+  .sub {
+    color: var(--support);
+    margin-bottom: 1.5rem;
+  }
+
+  .prose-p {
+    color: var(--ink-muted);
+    max-width: 62ch;
+    line-height: 1.7;
+  }
+
+  /* scale strip — the one stat moment */
+  .scale {
+    margin-top: 1.75rem;
+    border-block: 1px solid var(--line);
+    padding-block: 0.9rem;
+    display: grid;
+    gap: 0.4rem;
+    color: var(--support);
+  }
+
+  .scale-label {
+    color: var(--ink-faint);
+  }
+
+  .scale-value {
+    color: var(--accent);
+  }
+
+  /* Vyuha — the specimen block, second focal point */
+  .vyuha {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    padding: 2.25rem 2rem;
+  }
+
+  .vyuha .meta {
+    color: var(--support);
+    margin-bottom: 1.25rem;
+  }
+
+  .patent {
+    color: var(--warm);
+    margin-bottom: 1.25rem;
+  }
+
+  .patent-dot {
+    font-size: 0.5rem;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+  }
+
+  .patent-note {
+    color: var(--support);
+    margin-top: 1.1rem;
+  }
+
+  /* Namma Pothole chain */
+  .chain {
+    color: var(--support);
+    margin-top: 1.25rem;
+  }
+
+  .site-link {
+    margin-top: 0.9rem;
+  }
+
+  /* strengths + toolbox grids */
+  .strengths,
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 2.5rem;
+  }
+
+  .group h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .group ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+    color: var(--ink-muted);
+  }
+
+  .group li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .group li::before {
+    content: '●';
+    font-size: 0.4rem;
+    line-height: 1;
+    transform: translateY(-0.25em);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* education */
+  .edu,
+  .certs,
+  .pub {
+    margin-bottom: 2rem;
+  }
+
+  .edu h3,
+  .certs h3,
+  .pub h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .program {
+    color: var(--ink-muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .meta {
+    color: var(--support);
+  }
+
+  .accent {
+    color: var(--accent);
+  }
+
+  .certs ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .pub-title {
+    max-width: 62ch;
+    margin-bottom: 0.3rem;
+  }
+
+  /* full toolbox */
+  .full-tools {
+    margin-top: 2rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
+  }
+
+  .full-tools summary {
+    cursor: pointer;
+    color: var(--accent);
+    list-style: none;
+  }
+
+  .full-tools summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .full-tools summary::before {
+    content: '+ ';
+  }
+
+  .full-tools[open] summary::before {
+    content: '− ';
+  }
+
+  .full-tools .tool-grid {
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .strengths,
+    .tool-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .vyuha {
+      padding: 1.75rem 1.25rem;
+    }
   }
 </style>
