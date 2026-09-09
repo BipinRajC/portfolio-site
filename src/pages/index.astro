@@ -7,15 +7,23 @@ import SectionLabel from '../components/SectionLabel.astro';
 import WorkRow from '../components/WorkRow.astro';
 import IndexRow from '../components/IndexRow.astro';
 import { SOCIALS, EMAIL, EXPERIENCE_META } from '../data/site';
+import { HOMEPAGE } from '../data/homepage';
 import trajectory from '../data/trajectory.yaml';
 
-const projects = (await getCollection('projects')).filter((p) => !p.data.draft);
+const allProjects = (await getCollection('projects')).filter((p) => !p.data.draft);
+const projects = allProjects.filter((p) => p.data.atlas);
 const notes = (await getCollection('notes')).filter((n) => !n.data.draft);
 
-const selected = projects
-  .filter((p) => p.data.featured !== undefined)
-  .sort((a, b) => a.data.featured! - b.data.featured!)
-  .slice(0, 3);
+const selected = HOMEPAGE.selectedWork
+  .map((item) => {
+    if (item.type === 'project') {
+      const p = allProjects.find((x) => x.id === item.slug);
+      if (!p) return null;
+      return { title: p.data.title, description: p.data.description, tag: tagFor(p), href: `/projects/${p.id}` };
+    }
+    return null;
+  })
+  .filter((x): x is { title: string; description: string; tag: string; href: string } => x !== null);
 
 const latestProject = [...projects].sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -28,8 +36,8 @@ const noteMonth = latestNote.data.date
 const trajectoryItems = trajectory.categories.flatMap((c) => c.items);
 const trajectoryDone = trajectoryItems.filter((i) => i.done).length;
 
-const tagFor = (p: (typeof projects)[number]) =>
-  (p.data.tags[0] ?? p.data.status).toUpperCase();
+const tagFor = (p: (typeof allProjects)[number]) =>
+  (p.data.domain[0] ?? p.data.capability[0] ?? '').toUpperCase();
 ---
 
 <Base title="Home">
@@ -42,10 +50,10 @@ const tagFor = (p: (typeof projects)[number]) =>
       selected.map((p, i) => (
         <WorkRow
           num={String(i + 1).padStart(2, '0')}
-          title={p.data.title}
-          description={p.data.description}
-          tag={tagFor(p)}
-          href={`/projects/${p.id}`}
+          title={p.title}
+          description={p.description}
+          tag={p.tag}
+          href={p.href}
         />
       ))
     }

@@ -7,18 +7,28 @@ const projects = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    status: z.enum(['active', 'research', 'shipped', 'paused']),
-    tags: z.array(z.string()).default([]),
-    tech: z.array(z.string()).default([]),
-    links: z
+    /** Domain the project belongs to (e.g. SECURITY, AI, BLOCKCHAIN) */
+    domain: z.array(z.string()).default([]),
+    /** Technical capability it demonstrates (e.g. MACHINE LEARNING, FULL STACK) */
+    capability: z.array(z.string()).default([]),
+    /** Work type (e.g. RESEARCH) */
+    workType: z.array(z.string()).default([]),
+    /** Search-only technical concepts/keywords (not shown as visible tags) */
+    keywords: z.array(z.string()).default([]),
+    /** Optional project-specific metadata strip (TYPE / STATUS / ROLE / DOMAIN) */
+    meta: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+    github: z.string().url().optional(),
+    deployed: z.string().url().optional(),
+    /** Visual source + treatment type */
+    visual: z
       .object({
-        github: z.string().url().optional(),
-        paper: z.string().url().optional(),
-        demo: z.string().url().optional(),
+        type: z.enum(['screenshot', 'screenshot-atmosphere', 'conceptual', 'composite']),
+        source: z.string().optional(),
+        alt: z.string().optional(),
       })
-      .default({}),
-    /** 1..3 — order on the homepage Selected Work block */
-    featured: z.number().optional(),
+      .optional(),
+    /** Show in the /projects atlas (false = homepage-only item) */
+    atlas: z.boolean().default(true),
     draft: z.boolean().default(false),
   }),
 });
