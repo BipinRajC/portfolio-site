@@ -1,21 +1,23 @@
 ---
 interface Props {
   visual?: { type: string; source?: string; alt?: string };
+  caption?: string;
   large?: boolean;
 }
-const { visual, large } = Astro.props;
+const { visual, caption, large } = Astro.props;
 const src = visual?.source;
 const alt = visual?.alt ?? '';
 ---
 
-<div class:list={['visual', { large }]}>
+<figure class:list={['visual', { large }]}>
   {src ? (
     <img src={src} alt={alt} loading="lazy" />
   ) : (
     <div class="placeholder" aria-hidden="true"></div>
   )}
   <span class="grain" aria-hidden="true"></span>
-</div>
+  {caption && <figcaption class="mono">{caption}</figcaption>}
+</figure>
 
 <style>
   .visual {
@@ -41,5 +43,11 @@ const alt = visual?.alt ?? '';
   .placeholder {
     aspect-ratio: 16 / 9;
     background: var(--bg-panel);
+  }
+  figcaption {
+    margin-top: 0.6rem;
+    color: var(--support);
+    font-size: 0.6rem;
+    letter-spacing: var(--track-meta);
   }
 </style>
