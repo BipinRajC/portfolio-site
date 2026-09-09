@@ -1,0 +1,46 @@
+---
+interface Props {
+  visual?: { type: string; source?: string; alt?: string };
+  large?: boolean;
+}
+const { visual, large } = Astro.props;
+const src = visual?.source;
+const alt = visual?.alt ?? '';
+---
+
+<div class:list={['visual', { large }]}>
+  {src ? (
+    <img src={src} alt={alt} loading="lazy" />
+  ) : (
+    <div class="placeholder" aria-hidden="true"></div>
+  )}
+  <span class="grain" aria-hidden="true"></span>
+</div>
+
+<style>
+  .visual {
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .visual img {
+    display: block;
+    width: 100%;
+    height: auto;
+    -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 98%);
+    mask-image: radial-gradient(ellipse at center, black 55%, transparent 98%);
+  }
+  /* extremely light grain */
+  .grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .placeholder {
+    aspect-ratio: 3 / 2;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+  }
+</style>

@@ -1,17 +1,40 @@
 ---
 import Base from '../../layouts/Base.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+import ProjectLead from '../../components/ProjectLead.astro';
+import ProjectEntry from '../../components/ProjectEntry.astro';
 import { getCollection } from 'astro:content';
+import { PROJECTS_CONFIG } from '../../data/projects-config';
 
-const projects = (await getCollection('projects')).filter((p) => p.data.atlas && !p.data.draft);
+const projects = (await getCollection('projects'))
+  .filter((p) => p.data.atlas && !p.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const leadSlug = PROJECTS_CONFIG.lead;
+const lead = projects.find((p) => p.id === leadSlug);
+const rest = projects.filter((p) => p.id !== leadSlug);
 ---
 
-<Base title="Projects">
+<Base title="Projects" description="A curated atlas of systems, security, and AI work.">
   <div class="wrap">
-    <h1 class="serif">Projects</h1>
-    <ul>
-      {projects.map((p) => (
-        <li><a href={`/projects/${p.id}`}>{p.data.title}</a></li>
-      ))}
-    </ul>
+    <header class="head">
+      <SectionLabel text="PROJECTS" />
+      <h1 class="serif">A field atlas of things I've built.</h1>
+      <p class="lede">Systems, security, AI, and data — explored end to end.</p>
+    </header>
+
+    {lead && <ProjectLead project={lead.data} slug={lead.id} />}
+
+    <div class="grid">
+      {rest.map((p) => <ProjectEntry project={p.data} slug={p.id} />)}
+    </div>
   </div>
 </Base>
+
+<style>
+  .head { padding-block: var(--space-section) 2rem; }
+  h1 { font-size: var(--text-display); max-width: 20ch; margin-bottom: 1rem; }
+  .lede { color: var(--ink-muted); max-width: 62ch; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 3rem; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+</style>
