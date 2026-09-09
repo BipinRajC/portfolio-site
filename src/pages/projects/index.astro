@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import SectionLabel from '../../components/SectionLabel.astro';
 import ProjectLead from '../../components/ProjectLead.astro';
 import ProjectEntry from '../../components/ProjectEntry.astro';
+import ProjectFilters from '../../components/ProjectFilters.astro';
 import { getCollection } from 'astro:content';
 import { PROJECTS_CONFIG } from '../../data/projects-config';
 
@@ -13,6 +14,16 @@ const projects = (await getCollection('projects'))
 const leadSlug = PROJECTS_CONFIG.lead;
 const lead = projects.find((p) => p.id === leadSlug);
 const rest = projects.filter((p) => p.id !== leadSlug);
+
+const searchIndex = projects.map((p) => ({
+  id: p.id,
+  title: p.data.title,
+  description: p.data.description,
+  domain: p.data.domain,
+  capability: p.data.capability,
+  workType: p.data.workType,
+  keywords: p.data.keywords,
+}));
 ---
 
 <Base title="Projects" description="A curated atlas of systems, security, and AI work.">
@@ -23,6 +34,8 @@ const rest = projects.filter((p) => p.id !== leadSlug);
       <p class="lede">Systems, security, AI, and data — explored end to end.</p>
     </header>
 
+    <ProjectFilters />
+
     {lead && <ProjectLead project={lead.data} slug={lead.id} />}
 
     <div class="grid">
@@ -30,6 +43,10 @@ const rest = projects.filter((p) => p.id !== leadSlug);
     </div>
   </div>
 </Base>
+
+<script is:inline define:vars={{ searchIndex }}>
+  window.__PROJECTS__ = searchIndex;
+</script>
 
 <style>
   .head { padding-block: var(--space-section) 2rem; }

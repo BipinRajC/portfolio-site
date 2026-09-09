@@ -1,0 +1,98 @@
+---
+import { PROJECTS_CONFIG } from '../data/projects-config';
+
+const allTags = [
+  ...PROJECTS_CONFIG.taxonomy.domain,
+  ...PROJECTS_CONFIG.taxonomy.capability,
+  ...PROJECTS_CONFIG.taxonomy.workType,
+];
+---
+
+<div class="filters">
+  <input class="search mono" type="search" placeholder="Search projects…" aria-label="Search projects" />
+  <div class="tag-row">
+    {allTags.map((t) => (
+      <button class="tag mono" data-tag={t} type="button" aria-pressed="false">{t}</button>
+    ))}
+  </div>
+  <button class="reset mono" type="button" hidden>RESET</button>
+</div>
+
+<script>
+  import { filterProjects } from '../lib/search';
+
+  const input = document.querySelector('.search') as HTMLInputElement;
+  const tagButtons = [...document.querySelectorAll('.tag')] as HTMLButtonElement[];
+  const reset = document.querySelector('.reset') as HTMLButtonElement;
+  const projects = (window as any).__PROJECTS__ ?? [];
+  const entries = [...document.querySelectorAll('[data-project-id]')] as HTMLElement[];
+
+  let activeTags: string[] = [];
+
+  function apply() {
+    const query = input.value;
+    const filtered = filterProjects(projects, query, activeTags);
+    const ids = new Set(filtered.map((p) => p.id));
+    entries.forEach((el) => {
+      el.hidden = !ids.has(el.dataset.projectId ?? '');
+    });
+    reset.hidden = !(query.trim() || activeTags.length);
+  }
+
+  input.addEventListener('input', apply);
+  tagButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.tag ?? '';
+      if (activeTags.includes(t)) {
+        activeTags = activeTags.filter((x) => x !== t);
+        btn.setAttribute('aria-pressed', 'false');
+      } else {
+        activeTags.push(t);
+        btn.setAttribute('aria-pressed', 'true');
+      }
+      apply();
+    });
+  });
+  reset.addEventListener('click', () => {
+    input.value = '';
+    activeTags = [];
+    tagButtons.forEach((btn) => btn.setAttribute('aria-pressed', 'false'));
+    apply();
+  });
+</script>
+
+<style>
+  .filters { display: grid; gap: 1rem; padding-block: 1.5rem; }
+  .search {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.6rem 0.9rem;
+    font-size: 0.72rem;
+    letter-spacing: var(--track-meta);
+  }
+  .search::placeholder { color: var(--ink-faint); }
+  .search:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--support);
+    padding: 0.25rem 0.6rem;
+    font-size: 0.6rem;
+    letter-spacing: var(--track-meta);
+    cursor: pointer;
+  }
+  .tag:hover { border-color: var(--accent); color: var(--accent); }
+  .tag[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  .reset {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 0.62rem;
+    letter-spacing: var(--track-meta);
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+  }
+</style>

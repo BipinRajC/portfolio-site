@@ -9,7 +9,7 @@ const tags = [...project.domain, ...project.capability, ...project.workType];
 const fmtDate = project.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 ---
 
-<article class="lead">
+  <article class="lead" data-project-id={slug}>
   <a class="lead-link" href={`/projects/${slug}`}>
     <ProjectVisual visual={project.visual} large />
     <div class="lead-body">
