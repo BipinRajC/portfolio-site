@@ -14,6 +14,9 @@ const allProjects = (await getCollection('projects')).filter((p) => !p.data.draf
 const projects = allProjects.filter((p) => p.data.atlas);
 const notes = (await getCollection('notes')).filter((n) => !n.data.draft);
 
+const tagFor = (p: (typeof allProjects)[number]) =>
+  (p.data.domain[0] ?? p.data.capability[0] ?? '').toUpperCase();
+
 const selected = HOMEPAGE.selectedWork
   .map((item) => {
     if (item.type === 'project') {
@@ -35,9 +38,6 @@ const noteMonth = latestNote.data.date
 
 const trajectoryItems = trajectory.categories.flatMap((c) => c.items);
 const trajectoryDone = trajectoryItems.filter((i) => i.done).length;
-
-const tagFor = (p: (typeof allProjects)[number]) =>
-  (p.data.domain[0] ?? p.data.capability[0] ?? '').toUpperCase();
 ---
 
 <Base title="Home">
