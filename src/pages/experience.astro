@@ -12,7 +12,6 @@ import { EXPERIENCE } from '../data/experience';
     <header class="head">
       <SectionLabel text={EXPERIENCE.header.kicker} />
       <h1 class="serif">{EXPERIENCE.header.title}</h1>
-      {EXPERIENCE.header.lede && <p class="lede">{EXPERIENCE.header.lede}</p>}
     </header>
 
     {
@@ -28,8 +27,6 @@ import { EXPERIENCE } from '../data/experience';
           </p>
           <p class="one-liner" set:html={r.oneLiner} />
           <p class="narrative" set:html={r.narrative} />
-
-          {r.scale && <p class="scale mono">{r.scale.join(' · ')}</p>}
 
           {r.patent && (
             <p class="patent mono">
