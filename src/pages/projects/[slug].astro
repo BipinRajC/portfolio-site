@@ -35,6 +35,7 @@ const related = all
     <header class="head">
       <SectionLabel text="PROJECT" />
       <h1 class="serif">{project.data.title}</h1>
+      <p class="lede">{project.data.description}</p>
       <p class="meta mono">{fmtDate}</p>
 
       {project.data.meta.length > 0 && (
@@ -77,7 +78,9 @@ const related = all
 
 <style>
   .head { padding-block: var(--space-section) 2rem; }
+  .prose { max-width: none; }
   h1 { font-size: var(--text-display); max-width: 20ch; margin-bottom: 0.6rem; }
+  .lede { color: var(--ink-muted); max-width: 62ch; margin-bottom: 1rem; }
   .meta { color: var(--support); font-size: 0.65rem; margin-bottom: 0.8rem; }
   .meta-strip { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; margin-bottom: 1rem; }
   .meta-strip dt { color: var(--ink-faint); font-size: 0.6rem; }
