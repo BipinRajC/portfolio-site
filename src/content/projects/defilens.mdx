@@ -12,4 +12,42 @@ visual:
   alt: DeFiLens oracle monitoring dashboard
 ---
 
-{/* PLACEHOLDER: curated case study written in Phase 7 */}
+## The hook
+
+A Bloomberg Terminal for blockchain oracle data — reads live Chainlink prices on four chains and measures the latency of every call.
+
+## The problem
+
+DeFi protocols depend on oracles for price data, but oracle data is fragmented across chains, providers, and feeds. There's no single place to see what a feed is reporting, how fresh it is, or how it compares across chains. The problem is building a real-time view of oracle data that's actually connected to the chain — not a mock dashboard.
+
+## What I built
+
+DeFiLens is a real-time cross-chain oracle monitoring and benchmarking dashboard. It reads live Chainlink price feeds from four blockchains, measures the latency of every call, and layers on arbitrage and security analysis. The whole thing runs on a custom canvas candlestick engine.
+
+## How it works
+
+1. **On-chain reads** — connect to four blockchains via `ethers.js` and read live Chainlink price feeds.
+2. **Multi-provider abstraction** — a unified interface over multiple oracle providers, so adding a feed or chain is a config change, not a rewrite.
+3. **Real-time streaming** — an event-driven architecture pushes feed updates to the dashboard as they arrive.
+4. **Visualization** — a custom canvas candlestick engine renders price history, with latency and deviation metrics overlaid.
+5. **Analysis** — arbitrage and security analysis layered on top of the raw feed data.
+
+## Technical decisions
+
+- **Real on-chain integration.** The dashboard reads actual Chainlink feeds over JSON-RPC — not simulated data. This is the core of the project: real data plumbing into a real-time UI.
+- **Multi-provider abstraction.** Different oracles and chains have different interfaces. A clean abstraction makes the system extensible.
+- **Custom canvas candlestick engine.** Rather than pulling in a charting library, the candlestick rendering is built from scratch on canvas — full control over the visualization and performance.
+- **Event-driven real-time architecture.** Feed updates stream in as events, keeping the dashboard live without polling.
+
+## Key capabilities
+
+- Live Chainlink reads across four blockchains
+- Multi-provider oracle abstraction
+- Custom canvas candlestick engine
+- Event-driven real-time updates
+- Latency and deviation measurement
+- Live deployment
+
+## Honest limits
+
+The on-chain integration is real, but the arbitrage and security analysis layers are simulated demonstrations — they illustrate the analysis the platform *could* run rather than live results. The dashboard is a monitoring and benchmarking tool, not a trading system. The value is in the real data plumbing and the real-time visualization architecture.

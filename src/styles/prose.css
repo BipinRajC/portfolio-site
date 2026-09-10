@@ -79,3 +79,27 @@
   font-weight: 500;
   color: var(--ink);
 }
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.1em;
+  font-size: 0.9rem;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+}
+
+.prose th {
+  color: var(--ink);
+  font-weight: 500;
+  background: var(--bg-panel);
+}
+
+.prose td {
+  color: var(--ink-muted);
+}

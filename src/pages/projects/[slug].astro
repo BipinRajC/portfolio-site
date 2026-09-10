@@ -1,6 +1,11 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+import ProjectVisual from '../../components/ProjectVisual.astro';
+import '../../styles/prose.css';
+
+export const prerender = true;
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -9,11 +14,82 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
+const tags = [...project.data.domain, ...project.data.capability, ...project.data.workType];
+const fmtDate = project.data.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+const all = await getCollection('projects');
+const related = all
+  .filter((p) => p.id !== project.id && p.data.atlas && !p.data.draft)
+  .map((p) => ({
+    id: p.id,
+    title: p.data.title,
+    tags: [...p.data.domain, ...p.data.capability, ...p.data.workType],
+    score: [...p.data.domain, ...p.data.capability].filter((t) => tags.includes(t)).length,
+  }))
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3);
 ---
 
-<Base title={project.data.title}>
+<Base title={project.data.title} description={project.data.description}>
   <div class="wrap">
-    <h1 class="serif">{project.data.title}</h1>
-    <article><Content /></article>
+    <header class="head">
+      <SectionLabel text="PROJECT" />
+      <h1 class="serif">{project.data.title}</h1>
+      <p class="meta mono">{fmtDate}</p>
+
+      {project.data.meta.length > 0 && (
+        <dl class="meta-strip mono">
+          {project.data.meta.map((m) => (
+            <div><dt>{m.label}</dt><dd>{m.value}</dd></div>
+          ))}
+        </dl>
+      )}
+
+      <p class="tags mono">{tags.map((t) => <span class="tag">{t}</span>)}</p>
+      <div class="links mono">
+        {project.data.github && <a href={project.data.github} target="_blank" rel="noopener">GITHUB ↗</a>}
+        {project.data.deployed && <a href={project.data.deployed} target="_blank" rel="noopener">LIVE ↗</a>}
+      </div>
+    </header>
+
+    <ProjectVisual visual={project.data.visual} large caption={`${project.data.title.toUpperCase()} — ${fmtDate.toUpperCase()}`} />
+
+    <article class="prose">
+      <Content />
+    </article>
+
+    {related.length > 0 && (
+      <nav class="explore">
+        <p class="label mono">EXPLORE NEXT</p>
+        {related.map((r) => (
+          <a class="explore-link" href={`/projects/${r.id}`}>
+            <span class="arrow mono">→</span>
+            <span class="serif">{r.title}</span>
+            <span class="mono">{r.tags.slice(0, 2).join(' · ')}</span>
+          </a>
+        ))}
+      </nav>
+    )}
+
+    <nav class="back mono"><a href="/projects">← ALL PROJECTS</a></nav>
   </div>
 </Base>
+
+<style>
+  .head { padding-block: var(--space-section) 2rem; }
+  h1 { font-size: var(--text-display); max-width: 20ch; margin-bottom: 0.6rem; }
+  .meta { color: var(--support); font-size: 0.65rem; margin-bottom: 0.8rem; }
+  .meta-strip { display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; margin-bottom: 1rem; }
+  .meta-strip dt { color: var(--ink-faint); font-size: 0.6rem; }
+  .meta-strip dd { color: var(--support); font-size: 0.65rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; color: var(--support); font-size: 0.62rem; margin-bottom: 1rem; }
+  .links { display: flex; gap: 1.2rem; margin-bottom: 2rem; }
+  .explore { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1.5rem; display: grid; gap: 0.9rem; }
+  .label { color: var(--ink-faint); margin-bottom: 0.4rem; }
+  .explore-link { display: flex; align-items: baseline; gap: 0.7rem; text-decoration: none; border-bottom: none; }
+  .explore-link .arrow { color: var(--accent); }
+  .explore-link .serif { color: var(--ink); }
+  .explore-link .mono { color: var(--support); font-size: 0.62rem; }
+  .explore-link:hover .serif { color: var(--accent); }
+  .back { margin-top: 3rem; }
+</style>

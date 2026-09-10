@@ -11,4 +11,40 @@ visual:
   alt: OT-Sentinel security operations dashboard
 ---
 
-{/* PLACEHOLDER: curated case study written in Phase 7 */}
+## The hook
+
+Watch attacks hit a chemical plant's control network in real time — ML threat detection for SCADA and PLC networks.
+
+## The problem
+
+Industrial control systems (ICS) and operational technology (OT) networks run power grids, water treatment, and chemical plants. They're increasingly connected, but they're not IT networks — the protocols (Modbus, DNP3, OPC) and the traffic patterns are fundamentally different. Generic IT intrusion detection doesn't transfer. The problem is building detection that understands industrial protocol semantics and can classify attacks in real time.
+
+## What I built
+
+OT-Sentinel is an AI-powered ICS/OT security monitoring platform. It ingests industrial network traffic, extracts protocol-aware features, runs ML models to classify attacks, and streams the results live to a security operations dashboard.
+
+## How it works
+
+1. **Feature extraction** — 70+ protocol-aware features derived from industrial traffic, capturing the semantics of ICS protocols rather than generic packet statistics.
+2. **Model training** — multiple ML models trained on labeled attack/normal traffic, with a correlated process simulator generating realistic industrial scenarios.
+3. **Real-time inference** — a WebSocket-driven inference engine classifies traffic as it arrives, with low latency.
+4. **Visualization** — a security operations dashboard shows the live attack timeline, network graph, and classification results.
+
+## Technical decisions
+
+- **Protocol-aware features, not generic packet stats.** The features encode ICS semantics — register reads/writes, function codes, and protocol-specific behaviors — which is what makes the detection meaningful for OT rather than a re-skinned IT IDS.
+- **Multi-model ensemble.** Different attack classes are best detected by different models. The platform trains and combines multiple models rather than relying on a single classifier.
+- **Real-time WebSocket inference.** Detection must be live, not batch. The inference engine streams results to the dashboard over WebSocket.
+- **Correlated process simulator.** To generate realistic training data, the platform simulates industrial processes and the attacks against them, producing correlated, realistic traffic.
+
+## Key capabilities
+
+- 70+ protocol-aware ICS/OT features
+- Multi-model ML attack classification
+- Real-time WebSocket inference engine
+- Correlated process simulator for training data
+- Live security operations dashboard
+
+## Honest limits
+
+This is a research-grade detection platform. The models are trained on simulated and labeled data, and the detection accuracy depends on the quality and coverage of that data. It demonstrates the full pipeline — feature engineering, model training, real-time inference, and visualization — but it's not a deployed production IDS. The value is in showing a complete, working approach to OT-specific threat detection.

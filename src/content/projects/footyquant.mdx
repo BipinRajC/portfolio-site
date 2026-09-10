@@ -11,4 +11,44 @@ visual:
   alt: FootyQuant terminal interface
 ---
 
-{/* PLACEHOLDER: curated case study written in Phase 7 */}
+## The hook
+
+A terminal-native prediction engine for the World Cup that fuses prediction-market prices, bookmaker odds, and a Dixon-Coles model — and is honest enough to tell you when it has no edge.
+
+## The problem
+
+Football match prediction is dominated by two noisy signals: bookmaker odds (which embed a vig and a margin) and prediction markets (which embed crowd sentiment). Both are useful, but neither is a clean probability. The naive approach — average them — produces a number that looks precise but isn't. The real problem is turning two biased, noisy sources into a single calibrated probability, and then being honest about how much confidence that probability actually deserves.
+
+## What I built
+
+FootyQuant is an end-to-end prediction pipeline for the FIFA World Cup 2026. It ingests odds and market prices from multiple sources, de-vigs them into implied probabilities, fuses them into a consensus, and layers a Dixon-Coles Poisson model on top to generate match-level and tournament-level predictions. The whole thing runs in a Rust terminal interface.
+
+The differentiator isn't the model — it's the honesty. The engine computes bootstrap confidence intervals around every prediction and explicitly reports when the market consensus is too tight to beat. It will tell you "no edge here" rather than manufacturing a confident number.
+
+## How it works
+
+1. **Ingestion** — pull odds and market prices from multiple bookmakers and prediction markets.
+2. **De-vigging** — strip the bookmaker margin from each source to recover implied probabilities.
+3. **Consensus fusion** — combine the de-vigged sources into a single market-implied probability, weighting by source reliability.
+4. **Dixon-Coles model** — fit a low-scoring Poisson model (with the Dixon-Coles low-score correction) to historical match data to generate an independent model probability.
+5. **Fusion** — blend market consensus and model probability.
+6. **Uncertainty** — bootstrap the pipeline to produce confidence intervals, not point estimates.
+
+## Technical decisions
+
+- **Anti-leakage data engineering.** The model is trained only on data available before the prediction date. No future information leaks into the training set — a subtle but critical discipline that most hobbyist models get wrong.
+- **De-vigging as a first-class step.** The vig isn't noise to be ignored; it's a signal to be removed. The engine handles multi-way markets and the overround correctly.
+- **Bootstrap confidence intervals.** Every prediction ships with a distribution, not a single number. This is what makes the "no edge" reporting possible.
+- **Rust TUI.** The interface is a terminal app — fast, keyboard-driven, and visually consistent with the technical aesthetic of the work.
+
+## Key capabilities
+
+- Multi-source market consensus with de-vigging
+- Dixon-Coles Poisson match model
+- Tournament-level simulation (bracket + group stage)
+- Bootstrap confidence intervals on every prediction
+- Explicit "no edge" detection
+
+## Honest limits
+
+This is a research-grade prediction engine, not a betting system. The models are calibrated against historical data, but football is high-variance and the market is efficient. The engine's value is in the rigor of the pipeline and the honesty of its uncertainty reporting — not in guaranteed returns.
