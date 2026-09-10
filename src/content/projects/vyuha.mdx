@@ -1,12 +1,99 @@
 ---
-title: Vyuha
-description: An adaptive EDR evaluation framework — offensive-security research into how modern endpoint defenses observe, correlate, and respond to sophisticated attacker tradecraft.
+title: VYUHA
+description: An adaptive EDR evaluation and evasion framework. Offensive-security research into how modern endpoint defenses observe, correlate, and respond to sophisticated attacker tradecraft.
 date: 2026-03-01
 domain: [SECURITY]
-capability: [MACHINE LEARNING]
+capability: [MACHINE LEARNING, LOW LEVEL]
 workType: [RESEARCH]
-keywords: [edr, endpoint detection, byovd, syswhispers, reflective loading, windows internals, offensive security, evasion]
-atlas: false
+keywords: [windows internals, byovd, syswhispers4, reflective loading, edr, kernel, syscall, ppl, dse, dqn, reinforcement learning, shap, transfer learning, c++, offensive security, evasion, mitre att&ck, werfault, crystal palace, kaplastrike, nt internals, process manipulation, ai]
+github: "https://github.com/BipinRajC/Vyuha"
+visual:
+  type: conceptual
+  source: /vyuha/vyuha.png
+  alt: Cross-layer EDR evasion framework
+thumbnail: /vyuha/vyuha.png
+atlas: true
 ---
 
-{/* PLACEHOLDER: homepage-only item; detail page content preserved */}
+## The problem
+
+Modern EDR products are heterogeneous. They defend at different layers: kernel callbacks, user-mode API hooks, ETW telemetry, filesystem minifilters, PPL process protection. Each product has different blind spots. A technique that one product blocks sails straight past another. Worse, the interaction between techniques matters. An EDR that blocks kernel-level termination can be blind to syscall-boundary evasion. A product that catches process suspension can miss reflective loading.
+
+Testing this properly is hard for four reasons. Techniques must be executed for real; you cannot simulate whether a driver load, a syscall, or a reflective loader triggers a detection. The state space is large; EDR identity, Windows version, integrity level, PPL/DSE/Secure Boot status, and prior attempt history all influence which technique works. The decision is sequential; which technique to try next depends on what the EDR just did. And results must be explainable; a defender needs to know which system property caused the detection, not just that it happened.
+
+The status quo understates risk. Security teams run a BYOVD test, see the driver load blocked, check the box, and move on, never testing direct syscall invocation, reflective loading, or technique sequences. Manual red-team engagements are not repeatable, not scalable, and do not adapt. The first person to find those blind spots is usually a real adversary.
+
+## What I built
+
+VYUHA is a Windows-native offensive-security research framework that treats EDR product evaluation as a reinforcement learning problem. Instead of running a static list of attack techniques against an EDR and writing a report, it deploys four real, MITRE ATT&CK-mapped exploit techniques across three defensive layers (kernel, user-mode, syscall-boundary) and uses a Deep Q-Network agent to learn which technique sequence defeats each specific EDR product in real time. It observes how each product responds (blocked, alerted, or undetected), converts that into a state vector, feeds it to a PyTorch DQN, and adapts its next move. It then explains why each technique succeeded or failed using SHAP attribution, clusters EDR products into defensive tiers with K-means, and carries learned knowledge across products via transfer learning.
+
+The framework is a three-person collaboration. I built the exploit module: the four real technique implementations behind a uniform interface, keyed by MITRE ATT&CK ID. The agent core and ML analysis engine are teammates' contributions. My work is the empirical engine that makes the ML loop meaningful, and it is the part that encodes real Windows internals knowledge.
+
+## The four techniques
+
+### BYOVD (T1068) — kernel driver abuse
+
+A complete chain that loads a signed-but-vulnerable kernel driver and terminates processes from kernel context. It enables `SeLoadDriverPrivilege`, deploys `vulndriver.sys` (CVE-2023-52271), creates and starts a kernel service, opens the device, and sends an IOCTL with a buffer containing the target PID so the driver calls `ZwTerminateProcess` from kernel context. This bypasses user-mode hooks and PPL entirely. It ships with a 70+ entry EDR process signature database across 17 vendor families and full cleanup (stop service, delete service, remove file).
+
+The interesting part is the driver selection. CVE-2023-52271 is not blocklisted, unlike the heavily-blocklisted RTCore64. It required understanding the SCM service lifecycle, privilege adjustment, and the IOCTL buffer contract, plus defensive fallbacks (using the source path when TEMP writes are blocked).
+
+### EDR-Freeze (T1562.001) — WER race condition
+
+A user-mode technique that weaponizes Windows Error Reporting to suspend an EDR into a coma. It spawns `WerFaultSecure.exe` as a PPL (WinTCB) process targeting the EDR PID, spin-waits via `NtQuerySystemInformation` until all EDR threads report a suspended state, then calls `NtSuspendProcess` on WerFaultSecure to create a deadlock. This freezes the EDR without killing it, avoiding self-healing restarts. It is reversible: terminating WerFault releases the EDR.
+
+This is an abuse-of-legitimate-functionality attack. No driver, no file write, no child process beyond a signed Windows binary. It crosses the PPL boundary from user mode. The thread-state detection and the monitor-thread spin-wait race are subtle concurrency work.
+
+### Crystal Palace (T1055.001) — six-layer reflective loader
+
+A clean executor for a User-Defined Reflective Loader blob. It reads a self-contained Position-Independent-Code blob from the KaplaStrike toolchain, allocates RW memory, copies, flips to RX (avoiding the RWX IOC), and calls the entry point. The blob internally chains six evasion layers: XOR payload decryption, module overloading via `NtCreateSection`/`NtMapViewOfSection`, `.pdata` registration via `RtlAddFunctionTable`, `NtContinue` context transfer with synthetic stack frames, Draugr call-stack spoofing, and sleep-time memory masking.
+
+The orchestration constraint is interesting: this exploit never returns (NtContinue transfers execution), so it must be the terminal campaign step. The agent core has a guard for this.
+
+### SysWhispers4 (T1106) — direct syscall engine
+
+A direct-syscall engine that resolves ntdll via the PEB (no Win32 API), hashes function names with DJB2, parses the PE export table, and resolves System Service Numbers via six strategies: FreshyCalls (sort-by-VA), Hell's Gate (opcode read), Halo's Gate (neighbor scan), Tartarus' Gate (all hook patterns), RecycledGate (cross-validation), and FromDisk (clean ntdll mapped from `\KnownDlls`). It supports direct and indirect invocation, plus optional ETW patching, ntdll `.text` unhooking, and AMSI patching. It includes a full process-injection demo into Notepad using only direct syscalls.
+
+This is the deepest Windows internals work. It demonstrates the SSDT/SSN model, why SSNs shift between Windows builds, how EDR inline hooks mutate ntdll stubs, and how to recover SSNs from hooked or clean copies. The FromDisk and RecycledGate strategies show real defensive thinking about the technique itself.
+
+## The adaptive loop
+
+The closed loop is the heart of the system: observe state, select technique, execute, measure outcome, compute reward, update policy, repeat. Each campaign step feeds the DQN a reward derived from the outcome (for example, +100 for EDR terminated undetected, -75 for blocked, -100 for system crash), and the agent's Q-values shift so the next selection is informed by what the EDR just demonstrated.
+
+The DQN uses policy and target networks (26 to 128 to 64 to 4, ReLU with dropout), Adam, a 10,000-transition replay buffer, epsilon-greedy exploration with decay, and target sync. Rewards come from a typed outcome taxonomy with a stealth bonus and a technique-burn penalty. The C++ side mirrors the reward logic so the loop stays consistent.
+
+## Explainability
+
+The framework explains why a technique succeeded or failed against a specific EDR. A SHAP KernelExplainer runs over the DQN policy network, using an accumulated background distribution of observed states, with a gradient-based fallback when SHAP is unavailable. It produces top feature attributions and a natural-language narrative that names the active defensive mechanisms (PPL, DSE, Secure Boot, kernel callbacks) and recommends technique classes that bypass the top blocking feature.
+
+This is what makes the tool useful to defenders. It converts "your EDR blocked the attack" into "your EDR's PPL protection and driver signature enforcement drove the detection; consider techniques that operate in user-mode."
+
+## Transfer learning
+
+The framework groups EDR products into defensive tiers and reuses learned policies across similar products. It extracts numeric features per EDR (time-to-detection, detection confidence, blocking strength, layer count, minifilter/ETW/hook/callback presence, network isolation, registry rollback) and runs K-means clustering, naming clusters like Enterprise Grade and Basic Detection. It computes cosine similarity between EDR behavioral vectors and, above a threshold, copies a source EDR's model weights into a fresh agent for fine-tuning. It also blacklists (EDR, technique) pairs that fail repeatedly.
+
+Knowledge compounds across evaluations. The second product evaluation starts where the first left off, and defenders can benchmark their product against the landscape.
+
+## The bridge
+
+The framework wires C++ to Python over a custom JSON-over-pipes protocol. It spawns the Python ML server as a child process via `CreateProcess` and anonymous pipes on Windows (fork/pipe on POSIX), with a ping health check on startup. The protocol has 11 commands: select action, train, update target, save model, load model, cluster, update behavior, explain, transfer learning, failure patterns, ping. The JSON serialization is hand-rolled, a deliberate dependency-free design choice. If Python is unavailable, the framework degrades to C++-only mode.
+
+This is a pragmatic systems decision: C++ for low-level Windows access, Python for ML, with a clean debuggable protocol.
+
+## Key capabilities
+
+- Four real, cross-layer Windows exploit techniques (kernel driver abuse, WER race condition, six-layer reflective loader, direct syscall engine)
+- DQN-driven adaptive strategy selection with valid-action masking
+- SHAP explainability with a gradient-based fallback
+- K-means EDR behavior clustering and cosine-similarity transfer learning
+- Dependency-free C++ to Python JSON-over-pipes bridge
+- Multi-format reporting (JSON, CSV, HTML, STIX 2.1)
+- 70+ EDR process signatures across 17 vendor families
+- MITRE ATT&CK correlation and kill-chain identification
+
+## Honest limits
+
+This is a team project, not solo work. The repository is a three-person collaboration; I built the exploit module, and the agent core and ML analysis engine are teammates' contributions. The exploit module is the strongest evidence of my work here.
+
+The README's performance claims (detection-rate tables, transfer-learning speedup, convergence figures) are not independently verifiable from the repository. The repo contains seed and simulated data and a simulated training environment. Present these as project claims, not verified results.
+
+Several subsystems are stubs or scaffolds: the telemetry monitor, EDR cloud connectors, and parts of the cleaner and snapshot manager. There is a state-vector size mismatch between the C++ and Python sides. Crystal Palace requires an external blob generated by the KaplaStrike toolchain. This is a Windows-only, lab-oriented tool requiring admin privileges and a test environment with DSE configured. It is dual-use security tooling, framed for authorized testing and defensive evaluation.
