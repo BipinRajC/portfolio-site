@@ -3,6 +3,12 @@ dist/
 # generated types
 .astro/
 
+# virtual environment
+.venv
+
+# cache files
+.ruff_cache
+
 # dependencies
 node_modules/
 
