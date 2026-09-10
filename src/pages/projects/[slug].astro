@@ -48,7 +48,7 @@ const related = all
 
       <p class="tags mono">{tags.map((t) => <span class="tag">{t}</span>)}</p>
       <div class="links mono">
-        {project.data.github && <a href={project.data.github} target="_blank" rel="noopener">GITHUB ↗</a>}
+        {project.data.github && <a href={project.data.github} target="_blank" rel="noopener">GITHUB REPO ↗</a>}
         {project.data.deployed && <a href={project.data.deployed} target="_blank" rel="noopener">LIVE ↗</a>}
       </div>
     </header>
@@ -56,7 +56,7 @@ const related = all
     <ProjectVisual visual={project.data.visual} large caption={`${project.data.title.toUpperCase()} — ${fmtDate.toUpperCase()}`} />
 
     <article class="prose">
-      <Content />
+      <Content components={{ ProjectVisual }} />
     </article>
 
     {related.length > 0 && (

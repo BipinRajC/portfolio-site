@@ -1,7 +1,7 @@
 ---
 import ProjectVisual from './ProjectVisual.astro';
 interface Props {
-  project: { title: string; description: string; date: Date; domain: string[]; capability: string[]; workType: string[]; github?: string; deployed?: string; visual?: { type: string; source?: string; alt?: string } };
+  project: { title: string; description: string; date: Date; domain: string[]; capability: string[]; workType: string[]; github?: string; deployed?: string; thumbnail?: string; visual?: { type?: string; source?: string; alt?: string } };
   slug: string;
 }
 const { project, slug } = Astro.props;
@@ -11,7 +11,7 @@ const fmtDate = project.date.toLocaleDateString('en-US', { month: 'short', year:
 
 <article class="lead" data-project-id={slug}>
   <a class="lead-link" href={`/projects/${slug}`}>
-    <ProjectVisual visual={project.visual} large />
+    <ProjectVisual visual={{ ...project.visual, source: project.thumbnail ?? project.visual?.source }} large />
   </a>
   <div class="lead-body">
     <p class="meta mono">{fmtDate}</p>

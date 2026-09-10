@@ -10,6 +10,7 @@ interface Props {
     workType: string[];
     github?: string;
     deployed?: string;
+    thumbnail?: string;
     visual?: { type: string; source?: string; alt?: string };
   };
   slug: string;
@@ -21,7 +22,7 @@ const fmtDate = project.date.toLocaleDateString('en-US', { month: 'short', year:
 
 <article class="entry" data-project-id={slug}>
   <a class="entry-link" href={`/projects/${slug}`}>
-    <ProjectVisual visual={project.visual} />
+    <ProjectVisual visual={{ ...project.visual, source: project.thumbnail ?? project.visual?.source }} />
   </a>
   <div class="entry-body">
     <p class="meta mono">{fmtDate}</p>

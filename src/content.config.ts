@@ -27,6 +27,8 @@ const projects = defineCollection({
         alt: z.string().optional(),
       })
       .optional(),
+    /** Atlas thumbnail (defaults to visual.source when omitted) */
+    thumbnail: z.string().optional(),
     /** Show in the /projects atlas (false = homepage-only item) */
     atlas: z.boolean().default(true),
     draft: z.boolean().default(false),

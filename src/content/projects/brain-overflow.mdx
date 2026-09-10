@@ -10,6 +10,7 @@ github: "https://github.com/BipinRajC/Brain-Overflow"
 deployed: "https://brain-overflow.vercel.app/"
 visual:
   type: screenshot
+  source: /brainoverflow/brainoverflow1.png
   alt: Brain Overflow interface
 ---
 
@@ -30,6 +31,8 @@ The entire backend is four Deno edge functions on Supabase, backed by an 11-tabl
 3. **Process-prompt.** A stateless edge function loads the idea, flow, prompt, model, and prior messages from the DB, calls the LLM, normalizes the output, validates it, and chains to the next prompt.
 4. **Normalize.** The four-stage pipeline (PREPARE → CALL → NORMALIZE → VALIDATE) strips chain-of-thought, repairs malformed JSON, extracts structured fields across five providers' output formats, and retries with validation feedback.
 5. **Deliver.** The React dashboard shows the chat timeline, score ring, and run history in real time.
+
+<ProjectVisual visual={{ source: '/brainoverflow/brainoverflow2.png' }} caption="The idea detail view — chat timeline, score ring, and run history." />
 
 ## Technical decisions
 

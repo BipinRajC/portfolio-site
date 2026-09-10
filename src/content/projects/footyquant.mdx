@@ -9,6 +9,7 @@ keywords: [dixon-coles, poisson, prediction market, de-vig, bookmaker, rust, tui
 github: "https://github.com/BipinRajC/FIFA-WC-2026-ML-predictor"
 visual:
   type: screenshot
+  source: /footyquant/footyquant1.jpeg
   alt: FootyQuant terminal interface
 ---
 
@@ -30,6 +31,8 @@ The differentiator isn't the model, it's the honesty. The engine computes bootst
 4. **Dixon-Coles model.** Fit a low-scoring Poisson model (with the Dixon-Coles low-score correction) to historical match data to generate an independent model probability.
 5. **Fusion.** Blend market consensus and model probability.
 6. **Uncertainty.** Bootstrap the pipeline to produce confidence intervals, not point estimates.
+
+<ProjectVisual visual={{ source: '/footyquant/footyquant2.jpeg' }} caption="The terminal interface — predictions with confidence intervals." />
 
 ## Technical decisions
 
