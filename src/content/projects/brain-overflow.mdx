@@ -1,6 +1,6 @@
 ---
 title: Brain Overflow
-description: A self-hosted, serverless idea-processing OS — capture a thought by voice, keyboard, or Telegram, and a chain of AI personas turns it into a verdict and a 48-hour build plan.
+description: A self-hosted, serverless idea-processing OS. Capture a thought by voice, keyboard, or Telegram, and a chain of AI personas turns it into a verdict and a 48-hour build plan.
 date: 2026-06-01
 domain: [AI, PRODUCTIVITY]
 capability: [FULL STACK, REAL-TIME]
@@ -14,25 +14,25 @@ visual:
 
 ## The problem
 
-People have ideas constantly and lose them. When they do write them down, the ideas sit as unexamined notes. And evaluating an idea honestly is hard — founders are biased toward their own ideas, and "brutal honesty" is exactly what a friend won't provide. The follow-up problem is technical: chaining multiple LLM calls per idea means taming the messy, unreliable output of five different model providers into a single structured contract.
+People have ideas constantly and lose them. When they do write them down, the ideas sit as unexamined notes. And evaluating an idea honestly is hard. Founders are biased toward their own ideas, and "brutal honesty" is exactly what a friend won't provide. The follow-up problem is technical: chaining multiple LLM calls per idea means taming the messy, unreliable output of five different model providers into a single structured contract.
 
 ## What I built
 
-Brain Overflow is a full-stack, serverless idea-processing system. Capture a thought by voice, keyboard, or Telegram, and a configurable chain of AI prompts — Refiner, Paul Graham-style Evaluator, Compressor, Weekend Architect — transforms it into a structured brief with a verdict, a risk register, and a 48-hour build plan.
+Brain Overflow is a full-stack, serverless idea-processing system. Capture a thought by voice, keyboard, or Telegram, and a configurable chain of AI prompts (Refiner, Paul Graham-style Evaluator, Compressor, Weekend Architect) transforms it into a structured brief with a verdict, a risk register, and a 48-hour build plan.
 
 The entire backend is four Deno edge functions on Supabase, backed by an 11-table Postgres schema, with a static React frontend. There is no application server.
 
 ## How it works
 
-1. **Capture** — voice (Web Speech API), typed text, or a Telegram message lands in the `ideas` table.
-2. **Start-run** — an edge function validates the flow and fires the first prompt.
-3. **Process-prompt** — a stateless edge function loads the idea, flow, prompt, model, and prior messages from the DB, calls the LLM, normalizes the output, validates it, and chains to the next prompt.
-4. **Normalize** — the four-stage pipeline (PREPARE → CALL → NORMALIZE → VALIDATE) strips chain-of-thought, repairs malformed JSON, extracts structured fields across five providers' output formats, and retries with validation feedback.
-5. **Deliver** — the React dashboard shows the chat timeline, score ring, and run history in real time.
+1. **Capture.** Voice (Web Speech API), typed text, or a Telegram message lands in the `ideas` table.
+2. **Start-run.** An edge function validates the flow and fires the first prompt.
+3. **Process-prompt.** A stateless edge function loads the idea, flow, prompt, model, and prior messages from the DB, calls the LLM, normalizes the output, validates it, and chains to the next prompt.
+4. **Normalize.** The four-stage pipeline (PREPARE → CALL → NORMALIZE → VALIDATE) strips chain-of-thought, repairs malformed JSON, extracts structured fields across five providers' output formats, and retries with validation feedback.
+5. **Deliver.** The React dashboard shows the chat timeline, score ring, and run history in real time.
 
 ## Technical decisions
 
-- **The output-normalization pipeline is the core.** LLM output is adversarial to parsers — invalid JSON escapes, raw control characters, code fences, preambles that describe the format, reasoning interleaved with answers, and five different structural conventions. The solution layers reasoning stripping → JSON sanitization → balanced-brace extraction → multi-format fallback → alias mapping → synonym normalization → schema validation.
+- **The output-normalization pipeline is the core.** LLM output is adversarial to parsers. Invalid JSON escapes, raw control characters, code fences, preambles that describe the format, reasoning interleaved with answers, and five different structural conventions. The solution layers reasoning stripping, JSON sanitization, balanced-brace extraction, multi-format fallback, alias mapping, synonym normalization, and schema validation.
 - **Five-provider abstraction with provider-specific resilience.** Each provider has different auth, message schemas, and failure modes. Groq's free tier required `Retry-After`-aware backoff *and* context truncation on 413; Gemini required role remapping and a 300s timeout; OpenAI's reasoning models reject `temperature` and need `max_completion_tokens`.
 - **Stateless, claimable run lifecycle.** Serverless functions can't hold state, so the entire pipeline state lives in Postgres. A CAS-style guard ensures only one invocation can claim a queued run.
 - **Encrypted secrets at rest.** API keys are encrypted with `pgcrypto` PGP symmetric encryption inside `security definer` functions, decrypted only in edge-function memory. The UI only ever sees a masked prefix.
@@ -49,4 +49,4 @@ The entire backend is four Deno edge functions on Supabase, backed by an 11-tabl
 
 ## Honest limits
 
-This is a single-user, trust-based system — row-level security is deliberately disabled. The normalization tests pass and the frontend typechecks, but there's no evidence of production traffic or benchmarked model accuracy. The chain-continuation mechanism is the one area worth verifying before claiming the pipeline runs fully end-to-end.
+This is a single-user, trust-based system. Row-level security is deliberately disabled. The normalization tests pass and the frontend typechecks, but there's no evidence of production traffic or benchmarked model accuracy. The chain-continuation mechanism is the one area worth verifying before claiming the pipeline runs fully end-to-end.
