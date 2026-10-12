@@ -16,6 +16,7 @@ const allTags = [
     ))}
   </div>
   <button class="reset mono" type="button" hidden>RESET</button>
+  <p class="status mono" role="status" hidden></p>
 </div>
 
 <script>
@@ -24,6 +25,7 @@ const allTags = [
   const input = document.querySelector('.search') as HTMLInputElement;
   const tagButtons = [...document.querySelectorAll('.tag')] as HTMLButtonElement[];
   const reset = document.querySelector('.reset') as HTMLButtonElement;
+  const status = document.querySelector('.status') as HTMLParagraphElement;
   const projects = (window as any).__PROJECTS__ ?? [];
   const entries = [...document.querySelectorAll('[data-project-id]')] as HTMLElement[];
 
@@ -37,6 +39,10 @@ const allTags = [
       el.hidden = !ids.has(el.dataset.projectId ?? '');
     });
     reset.hidden = !(query.trim() || activeTags.length);
+    // announce empty results instead of leaving a silent blank grid
+    const filtering = query.trim() !== '' || activeTags.length > 0;
+    status.hidden = !filtering || ids.size > 0;
+    status.textContent = ids.size === 0 ? 'NO MATCHES — ADJUST THE SEARCH OR FILTERS' : '';
   }
 
   input.addEventListener('input', apply);
@@ -67,18 +73,18 @@ const allTags = [
     background: transparent;
     border: 1px solid var(--line);
     color: var(--ink);
-    padding: 0.6rem 0.9rem;
-    font-size: 0.72rem;
+    padding: 0.8rem 1rem;
+    font-size: max(16px, 0.72rem); /* ≥16px so iOS Safari doesn't zoom on focus */
     letter-spacing: var(--track-meta);
   }
   .search::placeholder { color: var(--ink-faint); }
   .search:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
-  .tag-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .tag {
     background: transparent;
     border: 1px solid var(--line);
     color: var(--support);
-    padding: 0.25rem 0.6rem;
+    padding: 0.7rem 0.9rem;
     font-size: 0.6rem;
     letter-spacing: var(--track-meta);
     cursor: pointer;
@@ -93,6 +99,11 @@ const allTags = [
     letter-spacing: var(--track-meta);
     cursor: pointer;
     text-align: left;
-    padding: 0;
+    padding: 0.6rem 0.4rem;
+  }
+  .status {
+    color: var(--ink-faint);
+    font-size: 0.65rem;
+    padding-block: 0.4rem;
   }
 </style>

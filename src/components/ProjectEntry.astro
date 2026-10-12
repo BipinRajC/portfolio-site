@@ -59,7 +59,8 @@ const fmtDate = project.date.toLocaleDateString('en-US', { month: 'short', year:
   .title-link { text-decoration: none; border-bottom: none; }
   .entry h3 { font-size: var(--text-title); color: var(--ink); }
   .icons { display: flex; align-items: center; gap: 0.7rem; }
-  .icon { display: inline-flex; align-items: center; color: var(--support); border-bottom: none; }
+  /* enlarged tap target; negative margin keeps the visual 25px glyph position */
+  .icon { display: inline-flex; align-items: center; color: var(--support); border-bottom: none; padding: 0.6rem; margin: -0.6rem; }
   .icon:hover { color: var(--accent); }
   .gh-img { filter: invert(1); }
   .desc { color: var(--ink-muted); max-width: 60ch; line-height: 1.6; margin-bottom: 0.9rem; }
