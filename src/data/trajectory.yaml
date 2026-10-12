@@ -12,7 +12,8 @@ categories:
         done: '2026-07-05'
         evidence: https://github.com/BipinRajC/FIFA-WC-2026-ML-predictor/
       - text: Make an open-source contribution and get a PR merged, so the community actually benefits
-      - text: Shift Namma Pothole to a fully cloud-native architecture (Azure/AWS)
+      - text: Shift Namma Pothole to a fully cloud-native architecture on Azure, running on serverless containers
+        done: '2026-09'
       - text: Learn DaVinci Resolve through YouTube, and experiment with MCPs and skills
       - text: Build a UGC page around geopolitics and post content
 
@@ -25,12 +26,17 @@ categories:
       - text: Run 5K
       - text: Run 10K
       - text: Bodyweight at 66kg with toned muscle
+        done: '2026-09'
+        evidence: https://www.instagram.com/p/DdyBmqoBRWN/
+        evidenceLabel: VIEW REEL
       - text: Achieve a six-pack
 
   - id: events
     title: Events to Attend
     items:
       - text: Supercomputing Conference '26 (SC26), Chicago
+        lapsed: true
+        note: The paper was rejected, so SC26 won't happen this time. There's always a next time — we'll get there.
       - text: The next bi0s meetups
 
   - id: travel
@@ -49,6 +55,9 @@ categories:
     items:
       - text: Start a blog
       - text: Start an Instagram page for luckmaxxing and visibility
+        done: '2026-09'
+        evidence: https://instagram.com/entropist.log
+        evidenceLabel: VIEW @ENTROPIST.LOG
       - text: Start a UGC page and post content
       - text: Obtain a stable side income
       - text: Own a car

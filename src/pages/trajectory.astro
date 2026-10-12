@@ -3,12 +3,20 @@ import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import trajectory from '../data/trajectory.yaml';
 
-const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-GB', {
+const fmtDate = (iso: string) => {
+  // month-precision dates ('YYYY-MM') render without a day, e.g. 'Sep 2026'
+  if (/^\d{4}-\d{2}$/.test(iso)) {
+    return new Date(`${iso}-01T00:00:00`).toLocaleDateString('en-US', {
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+  return new Date(iso).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
+};
 
 const categories = trajectory.categories.map((c) => {
   const done = c.items
@@ -57,14 +65,15 @@ const categories = trajectory.categories.map((c) => {
           </div>
           <ul class="items">
             {cat.items.map((item) => (
-              <li class:list={{ done: !!item.done }}>
+              <li class:list={{ done: !!item.done, lapsed: !!item.lapsed }}>
                 <span class="text">{item.text}</span>
                 {item.done && <span class="date mono">({fmtDate(item.done)})</span>}
                 {item.done && item.evidence && (
                   <a class="evidence mono" href={item.evidence} target="_blank" rel="noopener">
-                    — VIEW REPO ↗
+                    — {item.evidenceLabel ?? 'VIEW REPO'} ↗
                   </a>
                 )}
+                {item.lapsed && item.note && <span class="note">{item.note}</span>}
               </li>
             ))}
           </ul>
@@ -159,6 +168,22 @@ const categories = trajectory.categories.map((c) => {
     text-decoration: line-through;
   }
 
+  /* lapsed: honestly recorded, not completed — a quiet ✕ instead of the accent dot */
+  .items li.lapsed::before {
+    content: '✕';
+    font-size: 0.55rem;
+    transform: translateY(-0.1em);
+    color: var(--support);
+  }
+
+  .note {
+    flex-basis: 100%;
+    margin-left: 1.15rem; /* align under the item text, past the marker + gap */
+    color: var(--ink-faint);
+    font-size: calc(var(--text-small) * 0.95);
+    line-height: 1.6;
+  }
+
   .date {
     color: var(--accent);
     font-size: 0.65rem;
@@ -173,7 +198,7 @@ const categories = trajectory.categories.map((c) => {
   }
 
   /* narrow screens: allow wrapping instead of overflow */
-  @media (max-width: 900px) {
+  @media (max-width: 1100px) {
     .items li {
       white-space: normal;
       flex-wrap: wrap;
