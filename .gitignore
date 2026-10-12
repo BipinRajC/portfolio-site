@@ -47,3 +47,6 @@ docs/
 
 # observatory source illustrations (multi-MB; only the processed asset ships)
 art-candidates/
+
+# responsive QA output
+shots/
