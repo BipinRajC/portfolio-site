@@ -31,9 +31,10 @@ const fullTitle = title === 'Home' ? 'Bipin Raj — Systems Software Engineer' :
     <title>{fullTitle}</title>
   </head>
   <body>
+    <a class="skip-link mono" href="#main">SKIP TO CONTENT</a>
     <Atmosphere />
     <Nav />
-    <main>
+    <main id="main">
       <slot />
     </main>
     <Footer />

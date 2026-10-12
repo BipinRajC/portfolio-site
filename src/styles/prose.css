@@ -3,6 +3,7 @@
   max-width: 68ch;
   font-size: 1.0625rem;
   line-height: 1.7;
+  overflow-wrap: break-word; /* long tokens/URLs must never push the page wide */
 }
 
 .prose h2,
@@ -80,8 +81,12 @@
   color: var(--ink);
 }
 
+/* tables scroll within their own box on narrow screens, never the page */
 .prose table {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
   border-collapse: collapse;
   margin-bottom: 1.1em;
   font-size: 0.9rem;

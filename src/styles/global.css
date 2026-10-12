@@ -77,6 +77,24 @@ svg {
   padding-inline: var(--pad-x);
 }
 
+/* keyboard shortcut: skip link is invisible until focused */
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--bg-panel);
+  color: var(--accent);
+  border: 1px solid var(--line-strong);
+  transform: translateY(-300%);
+}
+
+.skip-link:focus {
+  transform: none;
+  border-bottom-color: var(--line-strong);
+}
+
 .mono {
   font-family: var(--font-mono);
   font-size: var(--text-meta);

@@ -62,6 +62,10 @@ const { num, title, description, tag, href } = Astro.props;
       row-gap: 0.15rem;
     }
 
+    .title {
+      white-space: normal; /* long titles must wrap, not overflow */
+    }
+
     .desc {
       flex-basis: 100%;
       order: 4;
