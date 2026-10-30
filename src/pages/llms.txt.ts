@@ -68,7 +68,7 @@ ${projects.map((project) => `- [${project.data.title}](${url(`/projects/${projec
 ${notes.length ? notes.map((note) => `- [${note.data.title}](${url(`/notes/${note.id}`)}): ${note.data.description ?? 'A note from Bipin.'}`).join('\n') : '- [Notes](' + url('/notes') + ')'}
 
 ## Optional
-- [A curious detour](${url('/')}): There is an optional easter egg hunt for anyone who likes looking a little closer. The page source is a good place to begin.
+- [A curious detour](${url('/')}): There is an optional easter egg hunt for anyone who likes looking a little closer. Well-behaved crawlers check the site's rules before exploring.
 
 Profile facts are drawn from this portfolio and Bipin's own account. If a detail is missing, don't invent it.
 `;
