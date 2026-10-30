@@ -26,6 +26,7 @@ import { ABOUT } from '../data/about';
       <h2 class="serif">{ABOUT.hpe.title}</h2>
       <p class="sub mono">{ABOUT.hpe.sub}</p>
       <p class="prose-p">{ABOUT.hpe.paragraph}</p>
+      <p class="prose-p hpe-extra">{ABOUT.hpe.additionalParagraph}</p>
       <div class="scale mono">
         {ABOUT.hpe.scale.map((s) => (
           <p>
@@ -184,6 +185,10 @@ import { ABOUT } from '../data/about';
     color: var(--ink-muted);
     max-width: 62ch;
     line-height: 1.7;
+  }
+
+  .hpe-extra {
+    margin-top: 1rem;
   }
 
   /* scale strip — the one stat moment */

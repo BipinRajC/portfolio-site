@@ -36,6 +36,14 @@ test('machine-readable profile contains current career context and valid site li
   }
 });
 
+test('about page retains existing HPC context alongside new security work', async () => {
+  const { response, body } = await read('/about');
+  assert.equal(response.status, 200);
+  for (const text of ['US Department of Defence', 'Aramco', 'SUMS', 'PRISM', 'work is in progress']) {
+    assert.ok(body.includes(text), `about page should include ${text}`);
+  }
+});
+
 test('the optional trail is solvable using served clues', async () => {
   const home = await read('/');
   assert.ok(/easter egg/i.test(home.body), 'homepage should mention the hunt');
