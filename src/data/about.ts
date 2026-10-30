@@ -18,7 +18,7 @@ export const ABOUT = {
     title: 'Hewlett Packard Enterprise',
     sub: 'HIGH PERFORMANCE COMPUTING · MONITORING · OBSERVABILITY · CEPH · EXASCALE STORAGE',
     paragraph:
-      "I work in the High Performance Computing domain at HPE, on NGSM which is the system-management platform behind El Capitan, Frontier, and Aurora, some of the world's fastest supercomputers. My work spans Slingshot interconnect monitoring, Ceph-based exascale storage and Security integrations with NGSM. The platform serves Oak Ridge National Laboratory (ORNL, US), the US Department of Defence (DoD), Aramco, and many more of the largest HPC deployments in existence.",
+      "I work in High Performance Computing at HPE, focusing on security integrations for the supercomputer management system (SUMS), Ceph and PRISM, a standalone monitoring platform. My work also spans Slingshot monitoring and simulation. With my team, I contribute to confidential computing for HPC clusters, including confidential tenant handover, a unified abstraction over hardware TEEs, GPU-extended confidential domains and TEE-aware scheduling; this work is in progress. The wider NGSM ecosystem supports deployments including Frontier and Aurora.",
     scale: [
       {
         label: 'DEPLOYMENT ENVIRONMENTS',
