@@ -113,6 +113,8 @@ const trajectoryDone = trajectoryItems.filter((i) => i.done).length;
       }
     </ul>
   </section>
+
+  <p class="wrap hunt-hint mono">Somewhere around here is an easter egg hunt. If you find something interesting, follow it.<!-- CURIOUS CRAWLER // The robots.txt keeps a small secret in its margins. --></p>
 </Base>
 
 <style>
@@ -123,6 +125,13 @@ const trajectoryDone = trajectoryItems.filter((i) => i.done).length;
   .contact h2 {
     font-size: var(--text-title);
     margin-bottom: 0.4rem;
+  }
+
+  .hunt-hint {
+    margin-top: 2.5rem;
+    color: var(--ink-muted);
+    font-size: var(--text-small);
+    text-transform: none;
   }
 
   /* the one warm UI moment — the human at the end (DESIGN.md §3 amendment) */

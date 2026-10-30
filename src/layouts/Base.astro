@@ -7,10 +7,20 @@ import Atmosphere from '../components/Atmosphere.astro';
 interface Props {
   title: string;
   description?: string;
+  noindex?: boolean;
 }
 
-const { title, description = 'Bipin Raj — Systems Software Engineer. Distributed storage, orchestration, and exascale HPC.' } = Astro.props;
+const { title, description = 'Bipin Raj — systems software engineer working on security, HPC infrastructure, and distributed systems.', noindex = false } = Astro.props;
 const fullTitle = title === 'Home' ? 'Bipin Raj — Systems Software Engineer' : `${title} — Bipin Raj`;
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Bipin Raj C',
+  url: new URL('/', Astro.site).href,
+  jobTitle: 'Systems Software Engineer',
+  worksFor: { '@type': 'Organization', name: 'Hewlett Packard Enterprise' },
+  sameAs: ['https://github.com/BipinRajC', 'https://www.linkedin.com/in/bipin-raj-c-b61670283/'],
+};
 ---
 
 <html lang="en">
@@ -20,6 +30,7 @@ const fullTitle = title === 'Home' ? 'Bipin Raj — Systems Software Engineer' :
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#0A0F18" />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -28,6 +39,7 @@ const fullTitle = title === 'Home' ? 'Bipin Raj — Systems Software Engineer' :
     <meta property="og:type" content="website" />
     <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
     <meta name="twitter:card" content="summary" />
+    {title === 'Home' && <script is:inline type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, '\\u003c')} />}
     <title>{fullTitle}</title>
   </head>
   <body>

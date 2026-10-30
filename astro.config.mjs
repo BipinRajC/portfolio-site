@@ -8,12 +8,12 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://portfolio-site-bipinrajcs-projects.vercel.app',
+  site: 'https://bipinrajc.vercel.app',
   output: 'server',
   adapter: vercel({
     webAnalytics: { enabled: true },
   }),
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/transmissions/') })],
   vite: {
     plugins: [yaml()],
   },
