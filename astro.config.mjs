@@ -13,7 +13,7 @@ export default defineConfig({
   adapter: vercel({
     webAnalytics: { enabled: true },
   }),
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/transmissions/') })],
   vite: {
     plugins: [yaml()],
   },

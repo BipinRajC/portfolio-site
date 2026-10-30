@@ -7,9 +7,10 @@ import Atmosphere from '../components/Atmosphere.astro';
 interface Props {
   title: string;
   description?: string;
+  noindex?: boolean;
 }
 
-const { title, description = 'Bipin Raj — systems software engineer working on security, HPC infrastructure, and distributed systems.' } = Astro.props;
+const { title, description = 'Bipin Raj — systems software engineer working on security, HPC infrastructure, and distributed systems.', noindex = false } = Astro.props;
 const fullTitle = title === 'Home' ? 'Bipin Raj — Systems Software Engineer' : `${title} — Bipin Raj`;
 const person = {
   '@context': 'https://schema.org',
@@ -29,6 +30,7 @@ const person = {
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#0A0F18" />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
     <link rel="sitemap" href="/sitemap-index.xml" />

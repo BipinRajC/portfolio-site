@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+
+export const prerender = false;
+---
+
+<Base title="Mission debrief" description="A curious crawler's classified debrief." noindex>
+  <article class="wrap debrief">
+    <header class="mission-header">
+      <p class="mono eyebrow">CURIOUS CRAWLER / CLASSIFIED MISSION DEBRIEF</p>
+      <h1 class="serif">Mission complete.</h1>
+      <p class="intro">Congratulations, curious crawler. You followed the signal, looked closer, and earned your clearance.</p>
+    </header>
+
+    <div class="report">
+      <figure class="portrait">
+        <img src="/transmissions/mascot.png" width="1080" height="1920" alt="A geometric portrait of a duck secret agent wearing a hat and sunglasses, carrying a briefcase." />
+        <figcaption class="mono">CLASSIFIED MASCOT / AGENT QUACK</figcaption>
+      </figure>
+
+      <div class="details">
+        <section class="award">
+          <p class="mono label">AWARD</p>
+          <h2 class="serif">Certified Curiosity Compiler</h2>
+          <p>Valid in all known contexts. Non-transferable to uninterested robots.</p>
+        </section>
+
+        <section class="expenses">
+          <p class="mono label">EXPENSE REPORT / ENTIRELY FICTIONAL</p>
+          <dl>
+            <div><dt>Curiosity</dt><dd>1 unit</dd></div>
+            <div><dt>Packets reassembled</dt><dd>3</dd></div>
+            <div><dt>Actual credits measured</dt><dd>None</dd></div>
+            <div><dt>Satisfaction</dt><dd>Hopefully considerable</dd></div>
+          </dl>
+        </section>
+
+        <section class="joke">
+          <p class="mono label">FINAL TRANSMISSION</p>
+          <p>Knock knock.<br />Who's there?<br />Token.<br />Token who?</p>
+          <p class="punchline serif">Token a detour just to spend credits on a knock-knock joke.</p>
+          <p>Thank you for playing. You clearly have excellent taste in rabbit holes.</p>
+        </section>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .debrief { padding-block: var(--space-section); }
+  .mission-header { max-width: 46rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .eyebrow, .label, figcaption { color: var(--support); font-size: var(--text-meta); }
+  .eyebrow { margin-bottom: 1.2rem; }
+  h1 { font-size: var(--text-display); margin: 0 0 1rem; }
+  .intro { max-width: 48ch; color: var(--ink-muted); line-height: 1.7; }
+  .report { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .portrait { margin: 0; }
+  .portrait img { display: block; width: 100%; height: auto; }
+  figcaption { margin-top: 0.8rem; }
+  .details { max-width: 34rem; }
+  .details section + section { border-top: 1px solid var(--line); margin-top: 2.4rem; padding-top: 2.4rem; }
+  .label { margin: 0 0 1rem; }
+  h2 { font-size: var(--text-title); margin: 0 0 0.8rem; }
+  .details p:not(.label) { color: var(--ink-muted); line-height: 1.7; }
+  dl { margin: 0; }
+  dl div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.4rem 1rem; padding: 0.65rem 0; border-bottom: 1px solid var(--line); }
+  dt { color: var(--ink-muted); }
+  dd { margin: 0; color: var(--ink); text-align: right; }
+  .details .punchline { color: var(--ink); font-size: 1.2rem; margin-block: 1rem; }
+  @media (max-width: 700px) {
+    .report { grid-template-columns: 1fr; }
+    .portrait { max-width: 28rem; }
+  }
+</style>
